@@ -32,7 +32,12 @@ export interface Product {
   colors: string[];
   stock: number;
   isFeatured: boolean;
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
   isArchived: boolean;
+  sku?: string | null;
+  brand?: string | null;
+  fabricDetails?: string | null;
   categoryId: string;
   category: { id: string; name: string; slug: string };
   avgRating?: number;

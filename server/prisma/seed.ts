@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting seed...\n");
+  console.log("🌱 Starting ShopMyUniform premium database seed...\n");
 
   // Clean existing data
   await prisma.review.deleteMany();
@@ -16,622 +16,819 @@ async function main() {
   await prisma.order.deleteMany();
   await prisma.cartItem.deleteMany();
   await prisma.cart.deleteMany();
-  await prisma.coupon.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.coupon.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("🗑️  Cleared existing data");
+  console.log("🗑️  Cleaned existing database tables");
+
+  // Hash passwords
+  const adminPasswordHash = await bcrypt.hash("password123", 12);
+  const userPasswordHash = await bcrypt.hash("password123", 12);
 
   // Create Users
-  const hashedPassword = await bcrypt.hash("password123", 12);
-
   const admin = await prisma.user.create({
     data: {
-      name: "Admin User",
+      name: "ShopMyUniform Admin",
       email: "admin@uniwear.com",
-      password: hashedPassword,
+      password: adminPasswordHash,
       role: "ADMIN",
     },
   });
 
-  const customer = await prisma.user.create({
+  const shopper = await prisma.user.create({
     data: {
-      name: "John Doe",
+      name: "Procurement Manager (Apex Care)",
       email: "john@example.com",
-      password: hashedPassword,
+      password: userPasswordHash,
       role: "USER",
     },
   });
 
-  console.log("👤 Created users");
+  // Create Cart for shopper
+  await prisma.cart.create({
+    data: {
+      userId: shopper.id,
+    },
+  });
 
-  // Create Categories
-  const categories = await Promise.all([
-    prisma.category.create({
-      data: {
-        name: "T-Shirts",
-        slug: "t-shirts",
-        description: "Comfortable everyday tees in premium cotton and blended fabrics",
-        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600",
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: "Jeans",
-        slug: "jeans",
-        description: "Classic and modern denim styles for every occasion",
-        image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600",
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: "Dresses",
-        slug: "dresses",
-        description: "Elegant dresses for casual outings and formal events",
-        image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600",
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: "Jackets",
-        slug: "jackets",
-        description: "Layering essentials from light windbreakers to heavy winter coats",
-        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600",
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: "Activewear",
-        slug: "activewear",
-        description: "Performance wear designed for workouts and active lifestyles",
-        image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600",
-      },
-    }),
-  ]);
+  console.log("👤 Created Admin and Shopper accounts");
 
-  const [tshirts, jeans, dresses, jackets, activewear] = categories;
+  // Seed Categories (Industries)
+  const categoriesData = [
+    {
+      name: "Medical",
+      slug: "medical-scrubs",
+      description: "Antimicrobial scrubs, doctor lab coats, and nursing apparel designed for healthcare settings.",
+      image: "https://images.unsplash.com/photo-1579684389782-64d84b5e905d?w=600",
+    },
+    {
+      name: "Corporate",
+      slug: "corporate-office",
+      description: "Tailored blazers, wrinkle-free dress shirts, and executive trousers for a professional business look.",
+      image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600",
+    },
+    {
+      name: "School",
+      slug: "school-uniforms",
+      description: "Pique polo shirts, pleated skirts, and school blazers built to withstand daily campus wear.",
+      image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+    },
+    {
+      name: "Industrial",
+      slug: "industrial-safety",
+      description: "Flame-resistant shirts, cargo work pants, and utility coveralls for shop floor environments.",
+      image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600",
+    },
+    {
+      name: "Hospitality",
+      slug: "hospitality-culinary",
+      description: "Chef coats, aprons, waitstaff shirts, and server vests designed for culinary arts.",
+      image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
+    },
+    {
+      name: "Security",
+      slug: "security-operations",
+      description: "Tactical shirts, duty trousers, and officer windbreakers constructed for presence and performance.",
+      image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600",
+    },
+    {
+      name: "Retail",
+      slug: "retail-uniforms",
+      description: "Snag-resistant staff polos, service aprons, and easy-wear chinos for store associate teams.",
+      image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+    },
+    {
+      name: "Construction",
+      slug: "construction-safety",
+      description: "High-visibility safety vests, class 3 parkas, and reinforced utility canvas trousers.",
+      image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600",
+    },
+    {
+      name: "Sports",
+      slug: "sports-team",
+      description: "Athletic team jerseys, training shorts, and moisture-wicking team polo shirts.",
+      image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600",
+    },
+    {
+      name: "Housekeeping",
+      slug: "housekeeping-uniforms",
+      description: "Zippered housekeeper tunics, clean-shield comfort pants, and unisex service aprons.",
+      image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
+    },
+  ];
 
-  console.log("📁 Created categories");
+  const categoriesMap: Record<string, string> = {};
+  for (const cat of categoriesData) {
+    const created = await prisma.category.create({ data: cat });
+    categoriesMap[cat.slug] = created.id;
+  }
 
-  // Create Products
-  const products = await Promise.all([
-    // T-Shirts (7 products)
-    prisma.product.create({
-      data: {
-        name: "Classic White Cotton Tee",
-        slug: "classic-white-cotton-tee",
-        description: "A timeless white t-shirt crafted from 100% organic cotton. Features a relaxed fit with reinforced stitching for lasting comfort. Perfect for layering or wearing solo.",
-        price: 1299,
-        comparePrice: 1799,
-        images: [
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600",
-          "https://images.unsplash.com/photo-1622445275463-afa2ab738c34?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-        colors: ["White", "Off-White"],
-        stock: 150,
-        categoryId: tshirts.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Midnight Black Crew Neck",
-        slug: "midnight-black-crew-neck",
-        description: "Premium black crew neck t-shirt with a modern slim fit. Made from soft combed cotton blend that retains color wash after wash.",
-        price: 1499,
-        comparePrice: 1999,
-        images: [
-          "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600",
-          "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Black"],
-        stock: 200,
-        categoryId: tshirts.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Ocean Blue Striped Tee",
-        slug: "ocean-blue-striped-tee",
-        description: "Nautical-inspired striped t-shirt with horizontal blue and white stripes. Relaxed fit with a slightly longer hem for a modern silhouette.",
-        price: 1699,
-        images: [
-          "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Blue", "White"],
-        stock: 80,
-        categoryId: tshirts.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Olive Green Pocket Tee",
-        slug: "olive-green-pocket-tee",
-        description: "Casual olive green t-shirt with a chest pocket detail. Perfect for everyday wear with a slightly oversized fit.",
-        price: 1399,
-        images: [
-          "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["Olive", "Sage"],
-        stock: 120,
-        categoryId: tshirts.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Graphic Print Urban Tee",
-        slug: "graphic-print-urban-tee",
-        description: "Bold graphic t-shirt featuring urban art-inspired prints. Made from 180 GSM cotton for a substantial, premium feel.",
-        price: 1899,
-        comparePrice: 2499,
-        images: [
-          "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Black", "Navy", "Charcoal"],
-        stock: 90,
-        categoryId: tshirts.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Heather Grey V-Neck",
-        slug: "heather-grey-v-neck",
-        description: "Soft heather grey V-neck t-shirt with a flattering neckline. Perfect mid-weight cotton blend for year-round wear.",
-        price: 1199,
-        images: [
-          "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Grey", "Light Grey"],
-        stock: 100,
-        categoryId: tshirts.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Rust Orange Oversized Tee",
-        slug: "rust-orange-oversized-tee",
-        description: "Trendy oversized t-shirt in a warm rust orange shade. Dropped shoulders and extended length for a street-style look.",
-        price: 1599,
-        images: [
-          "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Rust", "Terracotta"],
-        stock: 60,
-        categoryId: tshirts.id,
-      },
-    }),
+  console.log("📁 Created 10 industry uniform categories");
 
-    // Jeans (6 products)
-    prisma.product.create({
-      data: {
-        name: "Slim Fit Dark Wash Jeans",
-        slug: "slim-fit-dark-wash-jeans",
-        description: "Classic slim fit jeans in dark indigo wash. Made from premium stretch denim (98% cotton, 2% elastane) for all-day comfort without sacrificing style.",
-        price: 2999,
-        comparePrice: 3999,
-        images: [
-          "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600",
-          "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600",
-        ],
-        sizes: ["28", "30", "32", "34", "36", "38"],
-        colors: ["Dark Blue", "Indigo"],
-        stock: 100,
-        categoryId: jeans.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Relaxed Fit Light Blue Jeans",
-        slug: "relaxed-fit-light-blue-jeans",
-        description: "Comfortable relaxed fit jeans with a light blue vintage wash. Features a slightly tapered leg and mid-rise waist.",
-        price: 2799,
-        images: [
-          "https://images.unsplash.com/photo-1604176354204-9268737828e4?w=600",
-        ],
-        sizes: ["28", "30", "32", "34", "36"],
-        colors: ["Light Blue"],
-        stock: 75,
-        categoryId: jeans.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "High-Rise Skinny Black Jeans",
-        slug: "high-rise-skinny-black-jeans",
-        description: "Sleek high-rise skinny jeans in jet black. Super stretch denim that moves with you, featuring a classic 5-pocket design.",
-        price: 3299,
-        comparePrice: 4299,
-        images: [
-          "https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=600",
-        ],
-        sizes: ["24", "26", "28", "30", "32", "34"],
-        colors: ["Black"],
-        stock: 110,
-        categoryId: jeans.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Straight Leg Medium Wash",
-        slug: "straight-leg-medium-wash",
-        description: "Timeless straight leg jeans in medium wash. Balanced proportions from hip to hem, ideal for both casual and smart casual looks.",
-        price: 2599,
-        images: [
-          "https://images.unsplash.com/photo-1475178626620-a4d074967571?w=600",
-        ],
-        sizes: ["28", "30", "32", "34", "36", "38"],
-        colors: ["Medium Blue"],
-        stock: 85,
-        categoryId: jeans.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Distressed Boyfriend Jeans",
-        slug: "distressed-boyfriend-jeans",
-        description: "Trendy boyfriend-style jeans with artful distressing. Relaxed through the hip and thigh with a tapered ankle for a flattering shape.",
-        price: 3499,
-        images: [
-          "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=600",
-        ],
-        sizes: ["24", "26", "28", "30", "32"],
-        colors: ["Vintage Blue", "Washed Black"],
-        stock: 55,
-        categoryId: jeans.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Carpenter Wide Leg Jeans",
-        slug: "carpenter-wide-leg-jeans",
-        description: "Utilitarian-inspired wide leg jeans with carpenter details. Features a high waist and full-length wide leg for a contemporary silhouette.",
-        price: 3799,
-        images: [
-          "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        ],
-        sizes: ["26", "28", "30", "32", "34"],
-        colors: ["Tan", "Khaki"],
-        stock: 40,
-        categoryId: jeans.id,
-      },
-    }),
+  // Seed 30+ Products (Product-focused apparel only, no random backgrounds)
+  const productsData = [
+    // 1. Medical
+    {
+      name: "Pro-Flex Unisex Scrub Top",
+      slug: "pro-flex-unisex-scrub-top",
+      description: "Antimicrobial Medical Scrub Top. Breathable stretch blend with double utility breast slots and side seam vents.",
+      price: 1199.00,
+      comparePrice: 1599.00,
+      images: [
+        "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600",
+        "https://images.unsplash.com/photo-1579684389782-64d84b5e905d?w=600"
+      ],
+      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      colors: ["Navy Blue", "Royal Blue", "Hunter Green"],
+      stock: 120,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-MED-SCT-01",
+      brand: "Advantage Scrubs",
+      fabricDetails: "72% Polyester, 21% Rayon, 7% Spandex",
+      categorySlug: "medical-scrubs",
+    },
+    {
+      name: "Pro-Flex Jogger Scrub Pants",
+      slug: "pro-flex-jogger-scrub-pants",
+      description: "Medical jogger pants featuring elastic drawstring waistband, knit cuffs, and 6 utility cargo pockets.",
+      price: 1399.00,
+      comparePrice: 1899.00,
+      images: [
+        "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600",
+        "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Navy Blue", "Royal Blue", "Teal"],
+      stock: 90,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-MED-SCP-02",
+      brand: "Advantage Scrubs",
+      fabricDetails: "72% Polyester, 21% Rayon, 7% Spandex",
+      categorySlug: "medical-scrubs",
+    },
+    {
+      name: "Classic Professional Lab Coat",
+      slug: "classic-professional-lab-coat",
+      description: "Full-length white lab coat with soil-release protection. Side slits provide easy pocket access.",
+      price: 1899.00,
+      comparePrice: 2499.00,
+      images: [
+        "https://images.unsplash.com/photo-1622445262465-2481c8573226?w=600",
+        "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["White"],
+      stock: 50,
+      isFeatured: true,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-MED-LAB-03",
+      brand: "ShopMyUniform Elite",
+      fabricDetails: "65% Polyester, 35% Cotton Twill",
+      categorySlug: "medical-scrubs",
+    },
 
-    // Dresses (6 products)
-    prisma.product.create({
-      data: {
-        name: "Floral Midi Wrap Dress",
-        slug: "floral-midi-wrap-dress",
-        description: "Elegant midi wrap dress in a delicate floral print. Flattering V-neckline and adjustable waist tie. Flows beautifully with every step.",
-        price: 3999,
-        comparePrice: 5499,
-        images: [
-          "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600",
-          "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Floral Pink", "Floral Blue"],
-        stock: 65,
-        categoryId: dresses.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Little Black Dress",
-        slug: "little-black-dress",
-        description: "A wardrobe essential – the perfect little black dress. Structured bodice with an A-line skirt, hitting just above the knee for timeless elegance.",
-        price: 4499,
-        images: [
-          "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L"],
-        colors: ["Black"],
-        stock: 45,
-        categoryId: dresses.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Summer Linen Shirt Dress",
-        slug: "summer-linen-shirt-dress",
-        description: "Breezy linen shirt dress perfect for warm days. Button-through front with a relaxed fit and optional waist belt for shape.",
-        price: 3499,
-        images: [
-          "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d44?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Natural", "White", "Sky Blue"],
-        stock: 70,
-        categoryId: dresses.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Emerald Satin Evening Gown",
-        slug: "emerald-satin-evening-gown",
-        description: "Show-stopping satin evening gown in rich emerald green. Featuring a cowl neckline, fitted bodice, and flowing floor-length skirt.",
-        price: 7999,
-        comparePrice: 9999,
-        images: [
-          "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L"],
-        colors: ["Emerald", "Burgundy"],
-        stock: 25,
-        categoryId: dresses.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Casual Denim Shirt Dress",
-        slug: "casual-denim-shirt-dress",
-        description: "Relaxed denim shirt dress that transitions effortlessly from day to night. Soft chambray fabric with snap button closure.",
-        price: 2999,
-        images: [
-          "https://images.unsplash.com/photo-1502716119720-b23a1e3b3a34?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Light Wash", "Mid Wash"],
-        stock: 50,
-        categoryId: dresses.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Boho Maxi Sundress",
-        slug: "boho-maxi-sundress",
-        description: "Free-spirited bohemian maxi dress with tiered ruffle details. Lightweight viscose fabric with adjustable spaghetti straps.",
-        price: 3299,
-        images: [
-          "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Terracotta", "Olive", "Cream"],
-        stock: 55,
-        categoryId: dresses.id,
-      },
-    }),
+    // 2. Corporate
+    {
+      name: "Premium Wrinkle-Free Oxford Shirt",
+      slug: "premium-wrinkle-free-oxford-shirt",
+      description: "Executive long-sleeve corporate uniform shirt. Features non-iron design, fused collar, and adjustable cuffs.",
+      price: 1499.00,
+      comparePrice: 1999.00,
+      images: [
+        "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600",
+        "https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["White", "Sky Blue"],
+      stock: 140,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-COR-SHR-01",
+      brand: "ShopMyUniform Elite",
+      fabricDetails: "100% Egyptian Cotton Twill",
+      categorySlug: "corporate-office",
+    },
+    {
+      name: "Structured Executive Business Blazer",
+      slug: "structured-executive-business-blazer",
+      description: "Lined single-breasted corporate blazer with structured shoulder padding and notched lapels.",
+      price: 3899.00,
+      comparePrice: 4999.00,
+      images: [
+        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600",
+        "https://images.unsplash.com/photo-1598961008151-3a56cc5c26b9?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Black", "Charcoal", "Navy"],
+      stock: 35,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-COR-BLZ-02",
+      brand: "ShopMyUniform Elite",
+      fabricDetails: "70% Wool, 25% Polyester, 5% Spandex Stretch",
+      categorySlug: "corporate-office",
+    },
+    {
+      name: "Executive Tailored Fit Chinos",
+      slug: "executive-tailored-fit-chinos",
+      description: "Flat-front tailored corporate trousers with dynamic stretch waistband and deep rear welt pockets.",
+      price: 1799.00,
+      comparePrice: 2299.00,
+      images: [
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
+      ],
+      sizes: ["30", "32", "34", "36", "38"],
+      colors: ["Black", "Navy", "Khaki"],
+      stock: 75,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-COR-TRS-03",
+      brand: "ShopMyUniform Elite",
+      fabricDetails: "65% Polyester, 35% Viscose",
+      categorySlug: "corporate-office",
+    },
 
-    // Jackets (5 products)
-    prisma.product.create({
-      data: {
-        name: "Classic Leather Biker Jacket",
-        slug: "classic-leather-biker-jacket",
-        description: "Iconic biker jacket crafted from genuine leather. Features asymmetric zip closure, belt detail, and quilted lining. Ages beautifully over time.",
-        price: 12999,
-        comparePrice: 16999,
-        images: [
-          "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600",
-          "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Black", "Brown"],
-        stock: 30,
-        categoryId: jackets.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Quilted Puffer Jacket",
-        slug: "quilted-puffer-jacket",
-        description: "Warm quilted puffer jacket with recycled synthetic fill. Water-resistant outer shell with elastic cuffs and adjustable hem.",
-        price: 5999,
-        comparePrice: 7999,
-        images: [
-          "https://images.unsplash.com/photo-1544923246-77307dd270cb?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["Black", "Navy", "Olive"],
-        stock: 50,
-        categoryId: jackets.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Linen Blend Blazer",
-        slug: "linen-blend-blazer",
-        description: "Sophisticated linen-blend blazer with a relaxed, unstructured fit. Perfect for smart casual occasions or layering over a tee.",
-        price: 6499,
-        images: [
-          "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Beige", "Light Grey", "Navy"],
-        stock: 40,
-        categoryId: jackets.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Windbreaker Track Jacket",
-        slug: "windbreaker-track-jacket",
-        description: "Lightweight windbreaker with color-block design. Packable into its own pocket, making it perfect for unpredictable weather.",
-        price: 3499,
-        images: [
-          "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["Black/White", "Navy/Red", "Forest Green"],
-        stock: 70,
-        categoryId: jackets.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Corduroy Trucker Jacket",
-        slug: "corduroy-trucker-jacket",
-        description: "Retro-inspired corduroy trucker jacket with a sherpa-lined collar. Warm enough for autumn and cool enough for late spring.",
-        price: 4999,
-        images: [
-          "https://images.unsplash.com/photo-1548883354-94bcfe321cbb?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Camel", "Chocolate", "Forest Green"],
-        stock: 35,
-        categoryId: jackets.id,
-      },
-    }),
+    // 3. School
+    {
+      name: "Classic Pique School Polo Shirt",
+      slug: "classic-pique-school-polo-shirt",
+      description: "Shrink-resistant school polo shirt. Double-needle hemmed sleeves and tagless collar for ultimate schoolyard comfort.",
+      price: 699.00,
+      comparePrice: 899.00,
+      images: [
+        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600"
+      ],
+      sizes: ["XS", "S", "M", "L", "XL"],
+      colors: ["White", "Navy Blue", "Red"],
+      stock: 180,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-SCH-POL-01",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "60% Cotton, 40% Polyester Pique",
+      categorySlug: "school-uniforms",
+    },
+    {
+      name: "Pleated School Uniform Skirt",
+      slug: "pleated-school-uniform-skirt",
+      description: "Navy blue pleated school skirt with elastic back closure and wrinkle-resistant fabric finish.",
+      price: 999.00,
+      comparePrice: 1299.00,
+      images: [
+        "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600",
+        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600"
+      ],
+      sizes: ["XS", "S", "M", "L"],
+      colors: ["Navy Blue", "Khaki"],
+      stock: 80,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-SCH-SKR-02",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "100% Polyester Gabardine",
+      categorySlug: "school-uniforms",
+    },
+    {
+      name: "Classic V-Neck School Uniform Sweater",
+      slug: "classic-v-neck-school-uniform-sweater",
+      description: "Fine-gauge knit school uniform sweater vest. Features anti-pilling thread structure and ribbed v-neck collar.",
+      price: 1199.00,
+      comparePrice: 1599.00,
+      images: [
+        "https://images.unsplash.com/photo-1614975058789-41316d0e2e9c?w=600",
+        "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Navy Blue", "Charcoal Grey"],
+      stock: 55,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-SCH-SWT-03",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "100% Fine Acrylic knit",
+      categorySlug: "school-uniforms",
+    },
 
-    // Activewear (4 products)
-    prisma.product.create({
-      data: {
-        name: "Performance Running Shorts",
-        slug: "performance-running-shorts",
-        description: "Ultra-lightweight running shorts with built-in liner and moisture-wicking fabric. Features a secure zip pocket and reflective accents.",
-        price: 1999,
-        comparePrice: 2499,
-        images: [
-          "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Black", "Navy", "Grey"],
-        stock: 100,
-        categoryId: activewear.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "High-Waist Yoga Leggings",
-        slug: "high-waist-yoga-leggings",
-        description: "Buttery-soft high-waist yoga leggings with 4-way stretch. Squat-proof, moisture-wicking, and featuring a hidden waistband pocket.",
-        price: 2499,
-        comparePrice: 3299,
-        images: [
-          "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600",
-        ],
-        sizes: ["XS", "S", "M", "L", "XL"],
-        colors: ["Black", "Charcoal", "Deep Navy", "Burgundy"],
-        stock: 120,
-        categoryId: activewear.id,
-        isFeatured: true,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Dry-Fit Training Tank",
-        slug: "dry-fit-training-tank",
-        description: "Breathable training tank top with mesh back panel for maximum airflow. Cut for freedom of movement during high-intensity workouts.",
-        price: 1299,
-        images: [
-          "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Black", "White", "Neon Green"],
-        stock: 90,
-        categoryId: activewear.id,
-      },
-    }),
-    prisma.product.create({
-      data: {
-        name: "Zip-Up Training Hoodie",
-        slug: "zip-up-training-hoodie",
-        description: "Versatile zip-up hoodie made from premium tech fleece. Thumb holes, side pockets, and a fitted hood keep you comfortable pre and post workout.",
-        price: 3999,
-        comparePrice: 4999,
-        images: [
-          "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600",
-        ],
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["Charcoal", "Black", "Navy"],
-        stock: 60,
-        categoryId: activewear.id,
-        isFeatured: true,
-      },
-    }),
-  ]);
+    // 4. Industrial
+    {
+      name: "Flame-Resistant Heavyweight Work Jacket",
+      slug: "flame-resistant-heavyweight-work-jacket",
+      description: "NFPA 2112 certified heavy-duty work jacket with brass front zipper and dual reinforced utility chest pockets.",
+      price: 2499.00,
+      comparePrice: 2999.00,
+      images: [
+        "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600",
+        "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600"
+      ],
+      sizes: ["M", "L", "XL", "XXL"],
+      colors: ["Navy Blue", "Khaki"],
+      stock: 65,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-IND-JKT-01",
+      brand: "Red Kap Pro",
+      fabricDetails: "88% Cotton, 12% Heavy Nylon Twill",
+      categorySlug: "industrial-safety",
+    },
+    {
+      name: "Reinforced Knee Safety Cargo Pants",
+      slug: "reinforced-knee-safety-cargo-pants",
+      description: "Canvas trousers featuring cordura-reinforced knee pad slots and triple-stitched seams.",
+      price: 1899.00,
+      comparePrice: 2299.00,
+      images: [
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
+      ],
+      sizes: ["30", "32", "34", "36", "38"],
+      colors: ["Charcoal", "Black", "Navy Blue"],
+      stock: 110,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-IND-PAN-02",
+      brand: "Red Kap Pro",
+      fabricDetails: "65% Polyester, 35% Cotton Canvas",
+      categorySlug: "industrial-safety",
+    },
+    {
+      name: "Waterproof Heavy-Duty Work Overalls",
+      slug: "waterproof-heavy-duty-work-overalls",
+      description: "Insulated utility overalls with sealed seams. Heavy-duty elastic buckles and front zipper entry.",
+      price: 2999.00,
+      comparePrice: 3599.00,
+      images: [
+        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600",
+        "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=600"
+      ],
+      sizes: ["M", "L", "XL", "XXL"],
+      colors: ["Navy Blue", "Khaki"],
+      stock: 45,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-IND-COV-03",
+      brand: "Red Kap Pro",
+      fabricDetails: "300D Oxford Polyester with PU lining",
+      categorySlug: "industrial-safety",
+    },
 
-  console.log(`📦 Created ${products.length} products`);
+    // 5. Hospitality
+    {
+      name: "Executive Double-Breasted Chef Coat",
+      slug: "executive-double-breasted-chef-coat",
+      description: "Premium executive chef coat with cloth-covered buttons, French cuffs, and left sleeve thermometer pocket.",
+      price: 2199.00,
+      comparePrice: 2799.00,
+      images: [
+        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
+        "https://images.unsplash.com/photo-1581299894007-aaa50297cf16?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["White", "Black"],
+      stock: 60,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-HOS-COA-01",
+      brand: "Culinary Pro",
+      fabricDetails: "100% Egyptian Cotton Twill",
+      categorySlug: "hospitality-culinary",
+    },
+    {
+      name: "Heavy-Duty Cotton Bib Apron",
+      slug: "heavy-duty-cotton-bib-apron",
+      description: "Bib apron with reinforced double front utility slots and adjustable neck strap.",
+      price: 699.00,
+      comparePrice: 999.00,
+      images: [
+        "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
+        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
+      ],
+      sizes: ["One Size"],
+      colors: ["Black", "Burgundy", "Navy"],
+      stock: 250,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-HOS-APR-02",
+      brand: "Culinary Pro",
+      fabricDetails: "100% Cotton Canvas",
+      categorySlug: "hospitality-culinary",
+    },
+    {
+      name: "Tailored Restaurant Server Vest",
+      slug: "tailored-restaurant-server-vest",
+      description: "Waitstaff vest featuring front button closure, welt chest slots, and adjustable back satin belt.",
+      price: 1199.00,
+      comparePrice: 1599.00,
+      images: [
+        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
+        "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Black", "Burgundy"],
+      stock: 50,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-HOS-VST-03",
+      brand: "Culinary Pro",
+      fabricDetails: "100% Polyester Twill Front",
+      categorySlug: "hospitality-culinary",
+    },
 
-  // Create Coupons
-  await Promise.all([
-    prisma.coupon.create({
+    // 6. Security
+    {
+      name: "Class A Security Officer Shirt",
+      slug: "class-a-security-officer-shirt",
+      description: "Class A short sleeve security uniform shirt. Features structured shoulder epaulets and pleated chest pockets.",
+      price: 1399.00,
+      comparePrice: 1699.00,
+      images: [
+        "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600",
+        "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["Sky Blue", "Silver Tan", "Dark Navy"],
+      stock: 80,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-SEC-SHR-01",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "65% Polyester, 35% Cotton Poplin",
+      categorySlug: "security-operations",
+    },
+    {
+      name: "Reinforced Security Duty Pants",
+      slug: "reinforced-security-duty-pants",
+      description: "Officer duty trousers with silicone shirt-grip waistband and reinforced tactical cargo utility pockets.",
+      price: 1899.00,
+      comparePrice: 2299.00,
+      images: [
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
+      ],
+      sizes: ["30", "32", "34", "36", "38"],
+      colors: ["Dark Navy", "Black"],
+      stock: 60,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-SEC-PAN-02",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "65% Polyester, 35% Cotton Twill",
+      categorySlug: "security-operations",
+    },
+    {
+      name: "Security Windbreaker Officer Jacket",
+      slug: "security-windbreaker-officer-jacket",
+      description: "Officer bomber utility jacket with zip-out thermal fleece liner and side badge tabs.",
+      price: 2799.00,
+      comparePrice: 3499.00,
+      images: [
+        "https://images.unsplash.com/photo-1590102426859-ac915147c10f?w=600",
+        "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600"
+      ],
+      sizes: ["M", "L", "XL", "XXL"],
+      colors: ["Dark Navy", "Black"],
+      stock: 25,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-SEC-JKT-03",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "100% Nylon Oxford with waterproof backing",
+      categorySlug: "security-operations",
+    },
+
+    // 7. Retail
+    {
+      name: "Retail Staff Comfort Polo",
+      slug: "retail-staff-comfort-polo",
+      description: "Anti-snag knit retail uniform polo shirt. Features odor-repelling fabric thread and double-needle seams.",
+      price: 899.00,
+      comparePrice: 1199.00,
+      images: [
+        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["Red", "Royal Blue", "Black"],
+      stock: 140,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-RET-POL-01",
+      brand: "Cintas Work",
+      fabricDetails: "100% Comfort Micro-Polyester Pique",
+      categorySlug: "retail-uniforms",
+    },
+    {
+      name: "Snag-Resistant Retail Service Apron",
+      slug: "snag-resistant-retail-service-apron",
+      description: "Low-waist server associate apron with 3 horizontal pockets and adjustable strap binds.",
+      price: 599.00,
+      comparePrice: 799.00,
+      images: [
+        "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
+        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
+      ],
+      sizes: ["One Size"],
+      colors: ["Black", "Hunter Green"],
+      stock: 200,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: false,
+      sku: "SMU-RET-APR-02",
+      brand: "Cintas Work",
+      fabricDetails: "65% Polyester, 35% Cotton Twill",
+      categorySlug: "retail-uniforms",
+    },
+    {
+      name: "Retail Staff Flat-Front Chinos",
+      slug: "retail-staff-flat-front-chinos",
+      description: "Easy-wash flat-front store associate chinos. Comfort stretch thread provides daily mobility.",
+      price: 1499.00,
+      comparePrice: 1999.00,
+      images: [
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
+      ],
+      sizes: ["30", "32", "34", "36", "38"],
+      colors: ["Khaki", "Black", "Navy Blue"],
+      stock: 90,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-RET-TRS-03",
+      brand: "Cintas Work",
+      fabricDetails: "60% Cotton, 38% Polyester, 2% Spandex",
+      categorySlug: "retail-uniforms",
+    },
+
+    // 8. Construction
+    {
+      name: "Class 2 High-Visibility Safety Vest",
+      slug: "class-2-high-visibility-safety-vest",
+      description: "Bright yellow mesh traffic vest with class 2 visibility. Dual horizontal 3M reflective tape bands.",
+      price: 499.00,
+      comparePrice: 699.00,
+      images: [
+        "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600",
+        "https://images.unsplash.com/photo-1590102426859-ac915147c10f?w=600"
+      ],
+      sizes: ["M", "L", "XL"],
+      colors: ["Safety Yellow", "Safety Orange"],
+      stock: 300,
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-CON-VST-01",
+      brand: "SafeRoad Safety",
+      fabricDetails: "100% Breathable Polyester Mesh",
+      categorySlug: "construction-safety",
+    },
+    {
+      name: "Class 3 Waterproof Safety Parka",
+      slug: "class-3-waterproof-safety-parka",
+      description: "Class 3 waterproof high-vis parka. Features storm-seal cuffs, heavy hood, and warm thermal padding.",
+      price: 3299.00,
+      comparePrice: 3999.00,
+      images: [
+        "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=600",
+        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600"
+      ],
+      sizes: ["M", "L", "XL", "XXL"],
+      colors: ["Safety Yellow", "Safety Orange"],
+      stock: 50,
+      isFeatured: true,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-CON-PRK-02",
+      brand: "SafeRoad Safety",
+      fabricDetails: "300D Polyester Oxford with PU sealing",
+      categorySlug: "construction-safety",
+    },
+    {
+      name: "Construction Reinforced Utility Cargo Pants",
+      slug: "construction-reinforced-utility-cargo-pants",
+      description: "Heavy-duty canvas site cargo trousers. Features Cordura pocket covers and triple stitches.",
+      price: 1999.00,
+      comparePrice: 2499.00,
+      images: [
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
+      ],
+      sizes: ["30", "32", "34", "36", "38"],
+      colors: ["Charcoal", "Dark Khaki"],
+      stock: 120,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-CON-PAN-03",
+      brand: "Red Kap Pro",
+      fabricDetails: "65% Polyester, 35% Cotton Heavy Twill",
+      categorySlug: "construction-safety",
+    },
+
+    // 9. Sports
+    {
+      name: "Athletic Team Training Jersey",
+      slug: "athletic-team-training-jersey",
+      description: "Lightweight mesh athletic jersey. Moisture-wicking technology handles heavy drills and warm-ups.",
+      price: 799.00,
+      comparePrice: 1099.00,
+      images: [
+        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600",
+        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Black", "Royal Blue", "Red"],
+      stock: 110,
+      isFeatured: false,
+      isBestSeller: true,
+      isNewArrival: false,
+      sku: "SMU-SPT-JER-01",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "100% Interlock Mesh Polyester",
+      categorySlug: "sports-team",
+    },
+    {
+      name: "Athletic Team Training Shorts",
+      slug: "athletic-team-training-shorts",
+      description: "Performance athletic training shorts. Inner mesh brief lining and secure side waistband adjustments.",
+      price: 699.00,
+      comparePrice: 899.00,
+      images: [
+        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600",
+        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Black", "Navy Blue"],
+      stock: 95,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-SPT-SHT-02",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "100% Micro-polyester Knit",
+      categorySlug: "sports-team",
+    },
+    {
+      name: "Snag-Free Performance Team Polo",
+      slug: "snag-free-performance-team-polo",
+      description: "Breathable snag-free athletic team polo. Mesh side panels provide dynamic temperature control.",
+      price: 999.00,
+      comparePrice: 1299.00,
+      images: [
+        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: ["White", "Navy Blue", "Red"],
+      stock: 120,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: false,
+      sku: "SMU-SPT-POL-03",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "100% Cool-Dry Mesh Polyester",
+      categorySlug: "sports-team",
+    },
+
+    // 10. Housekeeping
+    {
+      name: "CleanShield Housekeeping Tunic",
+      slug: "cleanshield-housekeeping-tunic",
+      description: "Dual pocket tunics with side snap closure. Engineered to withstand high chlorine wash temps and stain buildup.",
+      price: 1199.00,
+      comparePrice: 1499.00,
+      images: [
+        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
+        "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Light Blue", "Navy Blue", "Teal"],
+      stock: 75,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: true,
+      sku: "SMU-HSK-TUN-01",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "65% Polyester, 35% Cotton Poplin",
+      categorySlug: "housekeeping-uniforms",
+    },
+    {
+      name: "CleanShield Comfort Elastic Waist Pants",
+      slug: "cleanshield-comfort-elastic-waist-pants",
+      description: "Housekeeping utility trousers featuring comfort stretch back and flat front styling.",
+      price: 999.00,
+      comparePrice: 1299.00,
+      images: [
+        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
+      ],
+      sizes: ["S", "M", "L", "XL"],
+      colors: ["Navy Blue", "Black"],
+      stock: 65,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: false,
+      sku: "SMU-HSK-PAN-02",
+      brand: "ShopMyUniform Pro",
+      fabricDetails: "65% Polyester, 35% Cotton Poplin",
+      categorySlug: "housekeeping-uniforms",
+    },
+    {
+      name: "Unisex Housekeeping Service Apron",
+      slug: "unisex-housekeeping-service-apron",
+      description: "Waist-length housekeeping apron with deep slots for sprays, towels, and keys.",
+      price: 499.00,
+      comparePrice: 699.00,
+      images: [
+        "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
+        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
+      ],
+      sizes: ["One Size"],
+      colors: ["Black", "Navy Blue"],
+      stock: 140,
+      isFeatured: false,
+      isBestSeller: false,
+      isNewArrival: false,
+      sku: "SMU-HSK-APR-03",
+      brand: "Cintas Work",
+      fabricDetails: "65% Polyester, 35% Cotton Twill",
+      categorySlug: "housekeeping-uniforms",
+    },
+  ];
+
+  for (const prod of productsData) {
+    const categoryId = categoriesMap[prod.categorySlug];
+    if (!categoryId) {
+      console.error(`Category mapping missing for slug: ${prod.categorySlug}`);
+      continue;
+    }
+
+    const { categorySlug: _, ...dbData } = prod;
+    await prisma.product.create({
       data: {
-        code: "WELCOME10",
+        ...dbData,
+        categoryId,
+        slug: prod.slug,
+      },
+    });
+  }
+
+  console.log(`📦 Seeded 30 realistic premium B2B ShopMyUniform products`);
+
+  // Seed active bulk and client Coupons
+  await prisma.coupon.createMany({
+    data: [
+      {
+        code: "UNIFORM20",
+        discountPct: 20,
+        minOrder: 1000.00,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        isActive: true,
+      },
+      {
+        code: "BULK10",
         discountPct: 10,
-        minOrder: 999,
-        maxDiscount: 500,
-        usageLimit: 100,
-        expiresAt: new Date("2027-12-31"),
-      },
-    }),
-    prisma.coupon.create({
-      data: {
-        code: "SUMMER25",
-        discountPct: 25,
-        minOrder: 2999,
-        maxDiscount: 2000,
+        minOrder: 5000.00,
+        maxDiscount: 2000.00,
         usageLimit: 50,
-        expiresAt: new Date("2027-09-30"),
+        expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+        isActive: true,
       },
-    }),
-    prisma.coupon.create({
-      data: {
-        code: "FLAT500",
-        discountPct: 100,
-        minOrder: 3000,
-        maxDiscount: 500,
-        usageLimit: 200,
-        expiresAt: new Date("2027-12-31"),
-      },
-    }),
-  ]);
+    ],
+  });
 
-  console.log("🎟️  Created coupons");
+  console.log("🎟️  Seeded active bulk discount coupons");
 
-  // Create some sample reviews
-  const productIds = products.map((p) => p.id);
-  await Promise.all([
-    prisma.review.create({
-      data: {
-        userId: customer.id,
-        productId: productIds[0],
-        rating: 5,
-        comment: "Amazing quality! The cotton is so soft and the fit is perfect. Already ordered two more.",
-      },
-    }),
-    prisma.review.create({
-      data: {
-        userId: customer.id,
-        productId: productIds[7],
-        rating: 4,
-        comment: "Great jeans, very comfortable. The stretch is nice for everyday wear. Runs slightly large.",
-      },
-    }),
-    prisma.review.create({
-      data: {
-        userId: admin.id,
-        productId: productIds[0],
-        rating: 4,
-        comment: "Good basic tee. Washes well and holds its shape nicely.",
-      },
-    }),
-  ]);
-
-  console.log("⭐ Created sample reviews");
-
-  console.log("\n✅ Seed completed successfully!");
-  console.log("\n📋 Demo Credentials:");
-  console.log("   Admin: admin@uniwear.com / password123");
-  console.log("   User:  john@example.com / password123");
+  console.log("\n✅ ShopMyUniform B2B database seeding completed successfully!");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seed failed:", e);
+    console.error("❌ Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {

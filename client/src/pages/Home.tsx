@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Sparkles, Truck, Shield, RotateCcw } from "lucide-react";
+import { ArrowRight, Sparkles, Truck, Shield, RotateCcw, Building2, ShieldCheck, HeartPulse, GraduationCap, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { productService } from "@/services/product.service";
 import { categoryService } from "@/services/category.service";
@@ -23,149 +23,190 @@ export default function Home() {
   const categories = categoriesData?.data || [];
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-4 py-20 md:py-32">
-          <div className="max-w-3xl mx-auto text-center">
+    <div className="space-y-20 pb-16">
+      {/* Premium B2B Hero Section */}
+      <section className="relative min-h-[85vh] flex items-center bg-zinc-950 text-white overflow-hidden">
+        {/* Background Image Overlay */}
+        <div className="absolute inset-0 opacity-40">
+          <img
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600"
+            alt="Corporate and Industrial Uniforms"
+            className="w-full h-full object-cover filter contrast-125 brightness-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 py-20">
+          <div className="max-w-3xl space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-zinc-300"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              <span>Premium Uniform Solutions for Enterprises & Teams</span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] max-w-2xl text-zinc-50"
+            >
+              Workwear built with <br />
+              <span className="text-zinc-400">durability & pride.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-zinc-300 max-w-xl"
+            >
+              ShopMyUniform supplies high-performance scrubs, industrial workwear, and corporate attire designed for everyday endurance.
+            </motion.p>
+
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-card text-sm mb-6">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span>New Season Collection Available</span>
-              </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-                Fashion that
-                <br />
-                <span className="gradient-text">defines you.</span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
-                Discover curated collections of premium fashion. From everyday essentials to statement pieces.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="xl" asChild>
-                  <Link to="/products">
-                    Shop Collection
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button size="xl" variant="outline" asChild>
-                  <Link to="/products?featured=true">View Featured</Link>
-                </Button>
-              </div>
+              <Button size="xl" className="bg-white text-zinc-950 hover:bg-zinc-200" asChild>
+                <Link to="/products">
+                  Shop B2B Catalog
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="xl" variant="outline" className="border-white/20 hover:bg-white/10 text-white" asChild>
+                <Link to="/products?featured=true">View Best Sellers</Link>
+              </Button>
             </motion.div>
           </div>
         </div>
-
-        {/* Decorative gradient blur */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[128px] pointer-events-none" />
       </section>
 
-      {/* Features */}
-      <section className="border-y bg-card">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: Truck, label: "Free Shipping", desc: "On orders over ₹2,999" },
-              { icon: Shield, label: "Secure Payment", desc: "100% protected checkout" },
-              { icon: RotateCcw, label: "Easy Returns", desc: "30-day return policy" },
-              { icon: Sparkles, label: "Premium Quality", desc: "Curated fashion only" },
-            ].map((feature, i) => (
-              <motion.div
-                key={feature.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-3"
-              >
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <feature.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{feature.label}</p>
-                  <p className="text-xs text-muted-foreground">{feature.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      {/* Trust Badges */}
+      <section className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-y py-10 bg-card rounded-xl px-6 border">
+          {[
+            { icon: ShieldCheck, title: "Industrial Grade Quality", desc: "Reinforced stitching, stretch gussets, and stain-resistant finishes." },
+            { icon: Truck, title: "Corporate Bulk Logistics", desc: "Customized embroidery services and tiered corporate volume discounts." },
+            { icon: RotateCcw, title: "Hassle-Free Fit Exchange", desc: "Easy size swaps for teams within 30 days of shipment." },
+          ].map((item, i) => (
+            <div key={item.title} className="flex gap-4">
+              <div className="h-12 w-12 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0 border">
+                <item.icon className="h-6 w-6 text-zinc-800" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold text-base">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Shop by Category</h2>
-            <p className="text-muted-foreground mt-1">Find exactly what you're looking for</p>
-          </div>
+      {/* Shop by Industry (Featured Industries Grid) */}
+      <section className="container mx-auto px-4 space-y-6">
+        <div className="text-center max-w-xl mx-auto space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Shop by Industry Solutions</h2>
+          <p className="text-muted-foreground">Expertly tailored collections optimized for specific professional fields.</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {categories.map((category, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { name: "Healthcare & Labs", slug: "medical-scrubs", image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600", desc: "Antimicrobial & stretch fabrics", icon: HeartPulse },
+            { name: "Construction & Safety", slug: "industrial-safety", image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600", desc: "Hi-vis and heavy-duty ripstop", icon: ShieldCheck },
+            { name: "Executive Corporate", slug: "corporate-office", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600", desc: "Wrinkle-resistant class looks", icon: Building2 },
+          ].map((ind, i) => (
             <motion.div
-              key={category.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              key={ind.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
+              className="group relative h-80 rounded-xl overflow-hidden shadow-sm border"
             >
-              <Link
-                to={`/products?category=${category.slug}`}
-                className="group relative block aspect-[4/5] overflow-hidden rounded-xl"
-              >
-                <img
-                  src={category.image || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600"}
-                  alt={category.name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-4">
-                  <h3 className="text-white font-semibold text-lg">{category.name}</h3>
-                  <p className="text-white/70 text-sm">{category._count?.products || 0} Products</p>
+              <img src={ind.image} alt={ind.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
+                <div className="flex items-center gap-2">
+                  <ind.icon className="h-5 w-5 text-zinc-400" />
+                  <span className="text-xs uppercase tracking-widest text-zinc-400 font-semibold">{ind.desc}</span>
                 </div>
-              </Link>
+                <h3 className="text-xl font-bold">{ind.name}</h3>
+                <Link to={`/products?category=${ind.slug}`} className="inline-flex items-center text-sm font-semibold text-white group-hover:underline pt-2">
+                  Browse Catalog
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Link>
+              </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Featured Products</h2>
-            <p className="text-muted-foreground mt-1">Handpicked favorites this season</p>
+      {/* Best Sellers Section */}
+      <section className="container mx-auto px-4 space-y-8">
+        <div className="flex items-end justify-between border-b pb-4">
+          <div className="space-y-1">
+            <h2 className="text-3xl font-bold tracking-tight">Best Selling Uniforms</h2>
+            <p className="text-muted-foreground">Trusted by procurement teams for fit, wearability, and lifespan.</p>
           </div>
           <Button variant="outline" asChild>
-            <Link to="/products">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link to="/products" className="gap-1">
+              Shop All Catalog
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </Button>
         </div>
 
         {loadingFeatured ? (
           <ProductGridSkeleton />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {featured.map((product) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {featured.slice(0, 4).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
       </section>
 
-      {/* CTA */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-8 md:p-16 text-center text-primary-foreground">
-          <h2 className="text-2xl md:text-4xl font-bold mb-4">Get 10% Off Your First Order</h2>
-          <p className="text-primary-foreground/80 mb-6 max-w-md mx-auto">
-            Use code <span className="font-mono font-bold bg-white/20 px-2 py-1 rounded">WELCOME10</span> at checkout
-          </p>
-          <Button size="xl" variant="secondary" asChild>
-            <Link to="/products">Start Shopping</Link>
-          </Button>
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+      {/* Bulk Orders Request Custom CTA */}
+      <section className="container mx-auto px-4">
+        <div className="bg-zinc-950 text-white rounded-2xl p-8 md:p-16 relative overflow-hidden border">
+          <div className="relative z-10 max-w-2xl space-y-6">
+            <span className="text-xs uppercase tracking-widest text-zinc-400 font-bold">Volume Procurement Solutions</span>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Need custom embroidery or bulk logistics?</h2>
+            <p className="text-zinc-300 text-lg">
+              ShopMyUniform provides customized portals and dedicated pricing for healthcare providers, industrial firms, hotels, and schools with 10+ employees.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <Button size="xl" className="bg-white text-zinc-950 hover:bg-zinc-200" asChild>
+                <Link to="/products">Start Bulk Checkout</Link>
+              </Button>
+              <Button size="xl" variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                Contact B2B Accounts
+              </Button>
+            </div>
+          </div>
+
+          {/* Decorative shapes */}
+          <div className="absolute top-1/2 right-10 -translate-y-1/2 opacity-20 hidden lg:block">
+            <Building2 className="h-80 w-80 text-white" />
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted By Businesses Logos */}
+      <section className="container mx-auto px-4 py-8 border-t text-center space-y-8">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Proudly Outfitting Teams At</p>
+        <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-50 contrast-200">
+          <span className="text-xl font-bold tracking-wider">APEX CARE HOSPITALS</span>
+          <span className="text-xl font-bold tracking-wider">SAFE ROAD CIVIL</span>
+          <span className="text-xl font-bold tracking-wider">GRAND HOTEL GROUP</span>
+          <span className="text-xl font-bold tracking-wider">ELITE ACADEMY</span>
         </div>
       </section>
     </div>
