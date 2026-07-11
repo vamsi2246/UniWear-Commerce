@@ -127,16 +127,13 @@ async function main() {
 
   console.log("📁 Created 10 industry uniform categories");
 
-  // Helper function to build consistent placeholders mimicking Nike/Shopify styling
-  // Uses light gray (#F4F4F5) background with dark (#18181B) text, portrait 600x800 aspect ratio.
-  const getMockImages = (sku: string, name: string, fabric: string) => {
-    const cleanName = encodeURIComponent(name);
-    const cleanFabric = encodeURIComponent(fabric);
+  // Helper function to build local uniform asset paths
+  const getLocalImages = (category: string, slug: string) => {
     return [
-      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Front%0A${cleanName}`,
-      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Back%0A${cleanName}`,
-      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Side%0A${cleanName}`,
-      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Close-Up%0A${cleanFabric}`
+      `/images/${category}/${slug}-front.jpg`,
+      `/images/${category}/${slug}-back.jpg`,
+      `/images/${category}/${slug}-side.jpg`,
+      `/images/${category}/${slug}-detail.jpg`
     ];
   };
 
@@ -680,8 +677,8 @@ async function main() {
       continue;
     }
 
-    const { categorySlug: _, ...dbData } = prod;
-    const images = getMockImages(prod.sku, prod.name, prod.fabricDetails);
+    const { categorySlug, ...dbData } = prod;
+    const images = getLocalImages(categorySlug, prod.slug);
 
     await prisma.product.create({
       data: {
