@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting ShopMyUniform premium database seed...\n");
+  console.log("🌱 Starting ShopMyUniform premium consistent database seed...\n");
 
   // Clean existing data
   await prisma.review.deleteMany();
@@ -55,7 +55,7 @@ async function main() {
 
   console.log("👤 Created Admin and Shopper accounts");
 
-  // Seed Categories (Industries)
+  // Seed Categories (Industries) with high-quality category banners
   const categoriesData = [
     {
       name: "Medical",
@@ -127,21 +127,30 @@ async function main() {
 
   console.log("📁 Created 10 industry uniform categories");
 
-  // Seed 30+ Products (Product-focused apparel only, no random backgrounds)
+  // Helper function to build consistent placeholders mimicking Nike/Shopify styling
+  // Uses light gray (#F4F4F5) background with dark (#18181B) text, portrait 600x800 aspect ratio.
+  const getMockImages = (sku: string, name: string, fabric: string) => {
+    const cleanName = encodeURIComponent(name);
+    const cleanFabric = encodeURIComponent(fabric);
+    return [
+      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Front%0A${cleanName}`,
+      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Back%0A${cleanName}`,
+      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Side%0A${cleanName}`,
+      `https://placehold.co/600x800/F4F4F5/18181B?text=${sku}+Close-Up%0A${cleanFabric}`
+    ];
+  };
+
+  // Seed 30+ Products (Consistent, mock product images only, no random backgrounds)
   const productsData = [
     // 1. Medical
     {
-      name: "Pro-Flex Unisex Scrub Top",
-      slug: "pro-flex-unisex-scrub-top",
+      name: "Apex Stretch V-Neck Scrub Top",
+      slug: "apex-stretch-v-neck-scrub-top",
       description: "Antimicrobial Medical Scrub Top. Breathable stretch blend with double utility breast slots and side seam vents.",
       price: 1199.00,
       comparePrice: 1599.00,
-      images: [
-        "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600",
-        "https://images.unsplash.com/photo-1579684389782-64d84b5e905d?w=600"
-      ],
       sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-      colors: ["Navy Blue", "Royal Blue", "Hunter Green"],
+      colors: ["Navy Blue", "Royal Blue", "Teal", "Hunter Green"],
       stock: 120,
       isFeatured: true,
       isBestSeller: true,
@@ -152,15 +161,11 @@ async function main() {
       categorySlug: "medical-scrubs",
     },
     {
-      name: "Pro-Flex Jogger Scrub Pants",
-      slug: "pro-flex-jogger-scrub-pants",
+      name: "Apex Comfort Jogger Scrub Pants",
+      slug: "apex-comfort-jogger-scrub-pants",
       description: "Medical jogger pants featuring elastic drawstring waistband, knit cuffs, and 6 utility cargo pockets.",
       price: 1399.00,
       comparePrice: 1899.00,
-      images: [
-        "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600",
-        "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Navy Blue", "Royal Blue", "Teal"],
       stock: 90,
@@ -173,15 +178,11 @@ async function main() {
       categorySlug: "medical-scrubs",
     },
     {
-      name: "Classic Professional Lab Coat",
-      slug: "classic-professional-lab-coat",
+      name: "Classic Antimicrobial Lab Coat",
+      slug: "classic-antimicrobial-lab-coat",
       description: "Full-length white lab coat with soil-release protection. Side slits provide easy pocket access.",
       price: 1899.00,
       comparePrice: 2499.00,
-      images: [
-        "https://images.unsplash.com/photo-1622445262465-2481c8573226?w=600",
-        "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600"
-      ],
       sizes: ["S", "M", "L", "XL", "XXL"],
       colors: ["White"],
       stock: 50,
@@ -196,17 +197,13 @@ async function main() {
 
     // 2. Corporate
     {
-      name: "Premium Wrinkle-Free Oxford Shirt",
-      slug: "premium-wrinkle-free-oxford-shirt",
+      name: "Premium Non-Iron Oxford Shirt",
+      slug: "premium-non-iron-oxford-shirt",
       description: "Executive long-sleeve corporate uniform shirt. Features non-iron design, fused collar, and adjustable cuffs.",
       price: 1499.00,
       comparePrice: 1999.00,
-      images: [
-        "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600",
-        "https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=600"
-      ],
       sizes: ["S", "M", "L", "XL", "XXL"],
-      colors: ["White", "Sky Blue"],
+      colors: ["White", "Sky Blue", "French Blue"],
       stock: 140,
       isFeatured: true,
       isBestSeller: true,
@@ -217,15 +214,11 @@ async function main() {
       categorySlug: "corporate-office",
     },
     {
-      name: "Structured Executive Business Blazer",
-      slug: "structured-executive-business-blazer",
+      name: "Structured Single-Breasted Blazer",
+      slug: "structured-single-breasted-blazer",
       description: "Lined single-breasted corporate blazer with structured shoulder padding and notched lapels.",
       price: 3899.00,
       comparePrice: 4999.00,
-      images: [
-        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600",
-        "https://images.unsplash.com/photo-1598961008151-3a56cc5c26b9?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Black", "Charcoal", "Navy"],
       stock: 35,
@@ -238,15 +231,11 @@ async function main() {
       categorySlug: "corporate-office",
     },
     {
-      name: "Executive Tailored Fit Chinos",
-      slug: "executive-tailored-fit-chinos",
+      name: "Executive Stretch Flat-Front Trousers",
+      slug: "executive-stretch-flat-front-trousers",
       description: "Flat-front tailored corporate trousers with dynamic stretch waistband and deep rear welt pockets.",
       price: 1799.00,
       comparePrice: 2299.00,
-      images: [
-        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
-      ],
       sizes: ["30", "32", "34", "36", "38"],
       colors: ["Black", "Navy", "Khaki"],
       stock: 75,
@@ -261,17 +250,13 @@ async function main() {
 
     // 3. School
     {
-      name: "Classic Pique School Polo Shirt",
-      slug: "classic-pique-school-polo-shirt",
+      name: "Heavy-Duty Pique School Polo",
+      slug: "heavy-duty-pique-school-polo",
       description: "Shrink-resistant school polo shirt. Double-needle hemmed sleeves and tagless collar for ultimate schoolyard comfort.",
       price: 699.00,
       comparePrice: 899.00,
-      images: [
-        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
-        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600"
-      ],
       sizes: ["XS", "S", "M", "L", "XL"],
-      colors: ["White", "Navy Blue", "Red"],
+      colors: ["White", "Navy Blue", "Red", "Hunter Green"],
       stock: 180,
       isFeatured: true,
       isBestSeller: true,
@@ -282,15 +267,11 @@ async function main() {
       categorySlug: "school-uniforms",
     },
     {
-      name: "Pleated School Uniform Skirt",
-      slug: "pleated-school-uniform-skirt",
+      name: "Pleated Permanent Crease Skirt",
+      slug: "pleated-permanent-crease-skirt",
       description: "Navy blue pleated school skirt with elastic back closure and wrinkle-resistant fabric finish.",
       price: 999.00,
       comparePrice: 1299.00,
-      images: [
-        "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600",
-        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600"
-      ],
       sizes: ["XS", "S", "M", "L"],
       colors: ["Navy Blue", "Khaki"],
       stock: 80,
@@ -303,15 +284,11 @@ async function main() {
       categorySlug: "school-uniforms",
     },
     {
-      name: "Classic V-Neck School Uniform Sweater",
-      slug: "classic-v-neck-school-uniform-sweater",
+      name: "School Uniform V-Neck Vest",
+      slug: "school-uniform-v-neck-vest",
       description: "Fine-gauge knit school uniform sweater vest. Features anti-pilling thread structure and ribbed v-neck collar.",
       price: 1199.00,
       comparePrice: 1599.00,
-      images: [
-        "https://images.unsplash.com/photo-1614975058789-41316d0e2e9c?w=600",
-        "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Navy Blue", "Charcoal Grey"],
       stock: 55,
@@ -326,17 +303,13 @@ async function main() {
 
     // 4. Industrial
     {
-      name: "Flame-Resistant Heavyweight Work Jacket",
-      slug: "flame-resistant-heavyweight-work-jacket",
+      name: "Flame-Resistant Utility Work Jacket",
+      slug: "flame-resistant-utility-work-jacket",
       description: "NFPA 2112 certified heavy-duty work jacket with brass front zipper and dual reinforced utility chest pockets.",
       price: 2499.00,
       comparePrice: 2999.00,
-      images: [
-        "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600",
-        "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600"
-      ],
       sizes: ["M", "L", "XL", "XXL"],
-      colors: ["Navy Blue", "Khaki"],
+      colors: ["Navy Blue", "Khaki", "Charcoal"],
       stock: 65,
       isFeatured: true,
       isBestSeller: true,
@@ -347,15 +320,11 @@ async function main() {
       categorySlug: "industrial-safety",
     },
     {
-      name: "Reinforced Knee Safety Cargo Pants",
-      slug: "reinforced-knee-safety-cargo-pants",
+      name: "Cordura Knee Safety Cargo Pants",
+      slug: "cordura-knee-safety-cargo-pants",
       description: "Canvas trousers featuring cordura-reinforced knee pad slots and triple-stitched seams.",
       price: 1899.00,
       comparePrice: 2299.00,
-      images: [
-        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
-      ],
       sizes: ["30", "32", "34", "36", "38"],
       colors: ["Charcoal", "Black", "Navy Blue"],
       stock: 110,
@@ -368,15 +337,11 @@ async function main() {
       categorySlug: "industrial-safety",
     },
     {
-      name: "Waterproof Heavy-Duty Work Overalls",
-      slug: "waterproof-heavy-duty-work-overalls",
+      name: "Waterproof Insulated Coveralls",
+      slug: "waterproof-insulated-coveralls",
       description: "Insulated utility overalls with sealed seams. Heavy-duty elastic buckles and front zipper entry.",
       price: 2999.00,
       comparePrice: 3599.00,
-      images: [
-        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600",
-        "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=600"
-      ],
       sizes: ["M", "L", "XL", "XXL"],
       colors: ["Navy Blue", "Khaki"],
       stock: 45,
@@ -391,15 +356,11 @@ async function main() {
 
     // 5. Hospitality
     {
-      name: "Executive Double-Breasted Chef Coat",
-      slug: "executive-double-breasted-chef-coat",
+      name: "Chef Masterclass Double-Breasted Jacket",
+      slug: "chef-masterclass-double-breasted-jacket",
       description: "Premium executive chef coat with cloth-covered buttons, French cuffs, and left sleeve thermometer pocket.",
       price: 2199.00,
       comparePrice: 2799.00,
-      images: [
-        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
-        "https://images.unsplash.com/photo-1581299894007-aaa50297cf16?w=600"
-      ],
       sizes: ["S", "M", "L", "XL", "XXL"],
       colors: ["White", "Black"],
       stock: 60,
@@ -412,17 +373,13 @@ async function main() {
       categorySlug: "hospitality-culinary",
     },
     {
-      name: "Heavy-Duty Cotton Bib Apron",
-      slug: "heavy-duty-cotton-bib-apron",
+      name: "Heavyweight Cotton Canvas Bib Apron",
+      slug: "heavyweight-cotton-canvas-bib-apron",
       description: "Bib apron with reinforced double front utility slots and adjustable neck strap.",
       price: 699.00,
       comparePrice: 999.00,
-      images: [
-        "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
-        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
-      ],
       sizes: ["One Size"],
-      colors: ["Black", "Burgundy", "Navy"],
+      colors: ["Black", "Burgundy", "Navy Blue"],
       stock: 250,
       isFeatured: false,
       isBestSeller: true,
@@ -433,15 +390,11 @@ async function main() {
       categorySlug: "hospitality-culinary",
     },
     {
-      name: "Tailored Restaurant Server Vest",
-      slug: "tailored-restaurant-server-vest",
+      name: "Classic Dining Room Server Vest",
+      slug: "classic-dining-room-server-vest",
       description: "Waitstaff vest featuring front button closure, welt chest slots, and adjustable back satin belt.",
       price: 1199.00,
       comparePrice: 1599.00,
-      images: [
-        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
-        "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Black", "Burgundy"],
       stock: 50,
@@ -456,15 +409,11 @@ async function main() {
 
     // 6. Security
     {
-      name: "Class A Security Officer Shirt",
-      slug: "class-a-security-officer-shirt",
+      name: "Officer Grade Long Sleeve Uniform Shirt",
+      slug: "officer-grade-long-sleeve-uniform-shirt",
       description: "Class A short sleeve security uniform shirt. Features structured shoulder epaulets and pleated chest pockets.",
       price: 1399.00,
       comparePrice: 1699.00,
-      images: [
-        "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600",
-        "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600"
-      ],
       sizes: ["S", "M", "L", "XL", "XXL"],
       colors: ["Sky Blue", "Silver Tan", "Dark Navy"],
       stock: 80,
@@ -477,15 +426,11 @@ async function main() {
       categorySlug: "security-operations",
     },
     {
-      name: "Reinforced Security Duty Pants",
-      slug: "reinforced-security-duty-pants",
+      name: "Tactical Combat Duty Pants",
+      slug: "tactical-combat-duty-pants",
       description: "Officer duty trousers with silicone shirt-grip waistband and reinforced tactical cargo utility pockets.",
       price: 1899.00,
       comparePrice: 2299.00,
-      images: [
-        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
-      ],
       sizes: ["30", "32", "34", "36", "38"],
       colors: ["Dark Navy", "Black"],
       stock: 60,
@@ -498,15 +443,11 @@ async function main() {
       categorySlug: "security-operations",
     },
     {
-      name: "Security Windbreaker Officer Jacket",
-      slug: "security-windbreaker-officer-jacket",
+      name: "All-Weather Security Bomber Jacket",
+      slug: "all-weather-security-bomber-jacket",
       description: "Officer bomber utility jacket with zip-out thermal fleece liner and side badge tabs.",
       price: 2799.00,
       comparePrice: 3499.00,
-      images: [
-        "https://images.unsplash.com/photo-1590102426859-ac915147c10f?w=600",
-        "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600"
-      ],
       sizes: ["M", "L", "XL", "XXL"],
       colors: ["Dark Navy", "Black"],
       stock: 25,
@@ -521,15 +462,11 @@ async function main() {
 
     // 7. Retail
     {
-      name: "Retail Staff Comfort Polo",
-      slug: "retail-staff-comfort-polo",
+      name: "Snag-Resistant Service Associate Polo",
+      slug: "snag-resistant-service-associate-polo",
       description: "Anti-snag knit retail uniform polo shirt. Features odor-repelling fabric thread and double-needle seams.",
       price: 899.00,
       comparePrice: 1199.00,
-      images: [
-        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
-        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600"
-      ],
       sizes: ["S", "M", "L", "XL", "XXL"],
       colors: ["Red", "Royal Blue", "Black"],
       stock: 140,
@@ -542,15 +479,11 @@ async function main() {
       categorySlug: "retail-uniforms",
     },
     {
-      name: "Snag-Resistant Retail Service Apron",
-      slug: "snag-resistant-retail-service-apron",
+      name: "Multi-Pocket Retail Waist Apron",
+      slug: "multi-pocket-retail-waist-apron",
       description: "Low-waist server associate apron with 3 horizontal pockets and adjustable strap binds.",
       price: 599.00,
       comparePrice: 799.00,
-      images: [
-        "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
-        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
-      ],
       sizes: ["One Size"],
       colors: ["Black", "Hunter Green"],
       stock: 200,
@@ -563,15 +496,11 @@ async function main() {
       categorySlug: "retail-uniforms",
     },
     {
-      name: "Retail Staff Flat-Front Chinos",
-      slug: "retail-staff-flat-front-chinos",
+      name: "Retail Comfort Chino Trousers",
+      slug: "retail-comfort-chino-trousers",
       description: "Easy-wash flat-front store associate chinos. Comfort stretch thread provides daily mobility.",
       price: 1499.00,
       comparePrice: 1999.00,
-      images: [
-        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
-      ],
       sizes: ["30", "32", "34", "36", "38"],
       colors: ["Khaki", "Black", "Navy Blue"],
       stock: 90,
@@ -586,15 +515,11 @@ async function main() {
 
     // 8. Construction
     {
-      name: "Class 2 High-Visibility Safety Vest",
-      slug: "class-2-high-visibility-safety-vest",
+      name: "Class 2 High-Visibility Mesh Vest",
+      slug: "class-2-high-visibility-mesh-vest",
       description: "Bright yellow mesh traffic vest with class 2 visibility. Dual horizontal 3M reflective tape bands.",
       price: 499.00,
       comparePrice: 699.00,
-      images: [
-        "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600",
-        "https://images.unsplash.com/photo-1590102426859-ac915147c10f?w=600"
-      ],
       sizes: ["M", "L", "XL"],
       colors: ["Safety Yellow", "Safety Orange"],
       stock: 300,
@@ -607,15 +532,11 @@ async function main() {
       categorySlug: "construction-safety",
     },
     {
-      name: "Class 3 Waterproof Safety Parka",
-      slug: "class-3-waterproof-safety-parka",
+      name: "Class 3 High-Vis Waterproof Parka",
+      slug: "class-3-high-vis-waterproof-parka",
       description: "Class 3 waterproof high-vis parka. Features storm-seal cuffs, heavy hood, and warm thermal padding.",
       price: 3299.00,
       comparePrice: 3999.00,
-      images: [
-        "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=600",
-        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600"
-      ],
       sizes: ["M", "L", "XL", "XXL"],
       colors: ["Safety Yellow", "Safety Orange"],
       stock: 50,
@@ -628,15 +549,11 @@ async function main() {
       categorySlug: "construction-safety",
     },
     {
-      name: "Construction Reinforced Utility Cargo Pants",
-      slug: "construction-reinforced-utility-cargo-pants",
+      name: "Industrial Site Utility Cargo Pants",
+      slug: "industrial-site-utility-cargo-pants",
       description: "Heavy-duty canvas site cargo trousers. Features Cordura pocket covers and triple stitches.",
       price: 1999.00,
       comparePrice: 2499.00,
-      images: [
-        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
-      ],
       sizes: ["30", "32", "34", "36", "38"],
       colors: ["Charcoal", "Dark Khaki"],
       stock: 120,
@@ -651,15 +568,11 @@ async function main() {
 
     // 9. Sports
     {
-      name: "Athletic Team Training Jersey",
-      slug: "athletic-team-training-jersey",
+      name: "Breathable Athletic Mesh Jersey",
+      slug: "breathable-athletic-mesh-jersey",
       description: "Lightweight mesh athletic jersey. Moisture-wicking technology handles heavy drills and warm-ups.",
       price: 799.00,
       comparePrice: 1099.00,
-      images: [
-        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600",
-        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Black", "Royal Blue", "Red"],
       stock: 110,
@@ -672,15 +585,11 @@ async function main() {
       categorySlug: "sports-team",
     },
     {
-      name: "Athletic Team Training Shorts",
-      slug: "athletic-team-training-shorts",
+      name: "Performance Athletic Training Shorts",
+      slug: "performance-athletic-training-shorts",
       description: "Performance athletic training shorts. Inner mesh brief lining and secure side waistband adjustments.",
       price: 699.00,
       comparePrice: 899.00,
-      images: [
-        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600",
-        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Black", "Navy Blue"],
       stock: 95,
@@ -693,15 +602,11 @@ async function main() {
       categorySlug: "sports-team",
     },
     {
-      name: "Snag-Free Performance Team Polo",
-      slug: "snag-free-performance-team-polo",
+      name: "Cooldry Moisture-Wicking Team Polo",
+      slug: "cooldry-moisture-wicking-team-polo",
       description: "Breathable snag-free athletic team polo. Mesh side panels provide dynamic temperature control.",
       price: 999.00,
       comparePrice: 1299.00,
-      images: [
-        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
-        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600"
-      ],
       sizes: ["S", "M", "L", "XL", "XXL"],
       colors: ["White", "Navy Blue", "Red"],
       stock: 120,
@@ -716,15 +621,11 @@ async function main() {
 
     // 10. Housekeeping
     {
-      name: "CleanShield Housekeeping Tunic",
-      slug: "cleanshield-housekeeping-tunic",
+      name: "Service Front-Zip Housekeeper Tunic",
+      slug: "service-front-zip-housekeeper-tunic",
       description: "Dual pocket tunics with side snap closure. Engineered to withstand high chlorine wash temps and stain buildup.",
       price: 1199.00,
       comparePrice: 1499.00,
-      images: [
-        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600",
-        "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Light Blue", "Navy Blue", "Teal"],
       stock: 75,
@@ -737,15 +638,11 @@ async function main() {
       categorySlug: "housekeeping-uniforms",
     },
     {
-      name: "CleanShield Comfort Elastic Waist Pants",
-      slug: "cleanshield-comfort-elastic-waist-pants",
+      name: "Service Flex Waist Comfort Trousers",
+      slug: "service-flex-waist-comfort-trousers",
       description: "Housekeeping utility trousers featuring comfort stretch back and flat front styling.",
       price: 999.00,
       comparePrice: 1299.00,
-      images: [
-        "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600"
-      ],
       sizes: ["S", "M", "L", "XL"],
       colors: ["Navy Blue", "Black"],
       stock: 65,
@@ -758,15 +655,11 @@ async function main() {
       categorySlug: "housekeeping-uniforms",
     },
     {
-      name: "Unisex Housekeeping Service Apron",
-      slug: "unisex-housekeeping-service-apron",
+      name: "Unisex Front Service Apron",
+      slug: "unisex-front-service-apron",
       description: "Waist-length housekeeping apron with deep slots for sprays, towels, and keys.",
       price: 499.00,
       comparePrice: 699.00,
-      images: [
-        "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600",
-        "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
-      ],
       sizes: ["One Size"],
       colors: ["Black", "Navy Blue"],
       stock: 140,
@@ -788,9 +681,12 @@ async function main() {
     }
 
     const { categorySlug: _, ...dbData } = prod;
+    const images = getMockImages(prod.sku, prod.name, prod.fabricDetails);
+
     await prisma.product.create({
       data: {
         ...dbData,
+        images,
         categoryId,
         slug: prod.slug,
       },
