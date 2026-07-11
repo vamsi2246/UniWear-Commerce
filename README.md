@@ -1,151 +1,81 @@
-# UniWear Commerce — Premium Fashion E-Commerce Platform
+# UniWear Commerce — Enterprise-Grade Fashion Marketplace
 
-A production-quality, full-stack fashion e-commerce marketplace built from scratch. Inspired by premium, minimalist design aesthetics (Apple + Linear + Shopify). Designed with modular Route-Controller-Service backend layers, PostgreSQL persistence via Prisma ORM, and React + TailwindCSS + Radix UI frontend.
-
-This project was built to showcase clean coding, security best practices, and sound database modeling for the internship technical assessment.
+A full-stack, production-quality fashion e-commerce marketplace built from scratch. Designed with modular Route-Controller-Service backend patterns, relational PostgreSQL persistence via Prisma ORM, and a React + TailwindCSS + Radix UI frontend.
 
 ---
 
-## 🚀 Deployed URLs
-* **Frontend (Vercel):** [https://uniwear-commerce.vercel.app](https://uniwear-commerce.vercel.app) (Placeholder)
-* **Backend API (Render):** [https://uniwear-api.onrender.com](https://uniwear-api.onrender.com) (Placeholder)
-* **Database:** Neon Serverless PostgreSQL
+## 🏛️ System Architecture
+
+The project is structured under a decoupled monorepo workspace.
+
+```mermaid
+graph TD
+    subgraph Client [React SPA Client]
+        UI[Radix UI Primitives & Framer Motion]
+        State[TanStack Query & Context API]
+        Axios[Axios API Client & Interceptors]
+    end
+
+    subgraph Server [Express REST API]
+        Router[Express Router]
+        Validate[Zod Validation Middleware]
+        Auth[Auth & Admin Guards]
+        Controller[Controller Layer]
+        Service[Service Business Logic]
+        Prisma[Prisma Client Data Layer]
+    end
+
+    subgraph Database [Neon Serverless PostgreSQL]
+        DB[(PostgreSQL Database)]
+    end
+
+    UI --> State
+    State --> Axios
+    Axios -- HTTP Cookies --> Router
+    Router --> Validate
+    Validate --> Auth
+    Auth --> Controller
+    Controller --> Service
+    Service --> Prisma
+    Prisma --> DB
+```
 
 ---
 
-## 🛠️ Tech Stack & Decisions
-
-### Frontend
-* **React 19 & Vite:** Next-gen rendering and ultra-fast hot module replacement.
-* **TailwindCSS v4:** Utility-first CSS compiling instantly with a consistent tokens grid system.
-* **React Router v7:** Programmatic routing with layouts and authentication guards.
-* **TanStack Query (React Query) v5:** Declarative caching, state sync, and optimistic UI updates.
-* **Radix UI Primitives (Shadcn/UI):** Headless, accessible keyboard-friendly components.
-* **Framer Motion:** High-fidelity animations and smooth micro-interactions.
-* **Zod & React Hook Form:** Type-safe schema validation for user details forms.
-
-### Backend
-* **Node.js & Express.js:** Event-driven async architecture for serving client requests.
-* **Prisma ORM:** Strictly type-safe DB client generation, declarative migration schema, and seed handlers.
-* **PostgreSQL:** Reliable ACID compliance, indexing on target columns, and JSON data type support.
-* **JWT (JSON Web Token) with httpOnly Cookies:** Prevents token leakage and cross-site scripting (XSS) vulnerabilities.
-* **bcryptjs:** Highly secure salted password hashing algorithm.
-
----
-
-## 📁 Folder Structure
+## 📁 Repository Layout
 
 ```
 UniWear-Commerce/
-├── docker-compose.yml              # Multi-container local orchestration
-├── package.json                    # Root workspaces setup
-├── client/                         # React Frontend Application
+├── docker-compose.yml              # Multi-container orchestration
+├── package.json                    # Workspaces runner configurations
+├── README.md                       # Documentation handbook
+├── client/                         # React Frontend SPA
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ui/                 # Accessible Radix primitives
-│   │   │   ├── layout/             # Header, Footer, and mobile menus
-│   │   │   ├── products/           # Cards, Skeletons, filters, and grids
-│   │   │   └── shared/             # Errors, spinners, empty states, ratings
-│   │   ├── contexts/               # Theme and Auth context providers
-│   │   ├── hooks/                  # useCart, useWishlist, useDebounce
-│   │   ├── layouts/                # ProtectedRoute, AdminLayout
-│   │   ├── lib/                    # Axios instance with interceptors, utils
-│   │   ├── pages/
-│   │   │   └── admin/              # Admin CRUD dashboards
-│   │   └── services/               # Modular REST API service wrappers
+│   │   │   ├── layout/             # Navigation headers & footers
+│   │   │   ├── products/           # Catalog grid, filters, and cards
+│   │   │   └── shared/             # Spinner loaders, empty states, star rating
+│   │   ├── contexts/               # Session & light/dark theme providers
+│   │   ├── hooks/                  # useCart, useWishlist query mutations
+│   │   ├── layouts/                # Protected routes & Admin dashboard frame
+│   │   ├── lib/                    # Axios instance & utility calculations
+│   │   ├── pages/                  # Customer-facing templates & admin controls
+│   │   └── services/               # REST API service request mappings
 │   └── package.json
-└── server/                         # Express Backend Application
+└── server/                         # Node.js + Express Backend
     ├── src/
-    │   ├── controllers/            # Request handlers
-    │   ├── middleware/             # Role guards, validation, errors
-    │   ├── routes/                 # API endpoint declarations
-    │   ├── services/               # Core business logic
-    │   ├── types/                  # Request type overrides
-    │   ├── validators/             # Request payloads schema (Zod)
-    │   └── utils/                  # Prisma connection, JWT tokens, bcrypt
+    │   ├── controllers/            # HTTP Request handlers
+    │   ├── middleware/             # Role checking & parsing guards
+    │   ├── routes/                 # Endpoint declarations
+    │   ├── services/               # Core transaction business logic
+    │   ├── tests/                  # Jest integration & unit test suites
+    │   └── utils/                  # Cryptography, JWT, Cloudinary, Prisma
     ├── prisma/
-    │   ├── schema.prisma           # Normalised relational models
-    │   └── seed.ts                 # Catalog populating script
+    │   ├── schema.prisma           # Relational Postgres schema
+    │   └── seed.ts                 # Catalog seeder seeder
     └── package.json
 ```
-
----
-
-## 🛢️ Database Design & Models (ERD)
-
-The database schema is fully normalized with correct foreign key constraints and indexes on frequently queried fields.
-
-```
-┌─────────────┐       ┌──────────────┐       ┌──────────────┐
-│   users      │       │  categories  │       │   coupons    │
-├─────────────┤       ├──────────────┤       ├──────────────┤
-│ id (PK)     │       │ id (PK)      │       │ id (PK)      │
-│ name        │       │ name         │       │ code (UQ)    │
-│ email (UQ)  │       │ slug (UQ)    │       │ discount_pct │
-│ password    │       │ description  │       │ min_order    │
-│ role (Enum) │       │ image        │       │ max_discount │
-│ avatar      │       └──────┬───────┘       │ usage_limit  │
-│ phone       │              │               │ used_count   │
-│ created_at  │              │ 1:N           │ expires_at   │
-└──────┬──────┘              │               │ is_active    │
-       │              ┌──────▼───────┐       └──────────────┘
-       │              │  products    │
-       │              ├──────────────┤
-       │              │ id (PK)      │
-       │              │ name         │
-       │              │ slug (UQ)    │
-       │              │ price        │
-       │              │ stock        │
-       │              │ category_id  │── FK → categories.id
-       └──────┬───────┘              │
-              │                      │
-    ┌─────────┼──────────────────────┤
-    │         │                      │
-┌───▼───┐ ┌───▼──────┐           ┌───▼──────┐
-│ carts │ │wishlists │           │ reviews  │
-└───┬───┘ └──────────┘           ├──────────┤
-    │ 1:N                        │ rating   │
-┌───▼──────┐                     │ comment  │
-│cart_items│                     └──────────┘
-└──────────┘
-```
-
-### Main Database Relationships
-1. **User (1) ↔ Cart (1):** One active shopper cart model per registered user.
-2. **Category (1) ↔ Product (N):** Categorization of store products.
-3. **Cart (1) ↔ CartItem (N):** List of products added by the user with quantity, size, and color details.
-4. **Order (1) ↔ OrderItem (N):** Capture snapshotted product price, sizing, and quantity at purchase time.
-5. **Product (1) ↔ Review (N):** Product star-ratings and customer feedback.
-6. **Product (1) ↔ Wishlist (N):** Save-for-later functionality junction table.
-
----
-
-## 🔒 Security Plan
-* **Stateless Authenticated Sessions:** JWT is signed and set as an `httpOnly`, `Secure` (in production), and `SameSite=Lax` cookie to block CSRF and XSS.
-* **Role-Based Routing:** Express request chain routes through `authMiddleware` and `adminMiddleware` to restrict admin dashboard access.
-* **Brute Force Defense:** `express-rate-limit` limits login/register attempts.
-* **Data Sanitization & Validation:** Strict request body validation on the server using Zod schemas before running database mutations.
-* **Prisma Injection Prevention:** Parametrisation is built-in by default for all SQL queries compiled from the client operations.
-
----
-
-## ⚡ System Architecture & Flows
-
-### Authentication Flow
-1. Shopper registers/logs in → Express validates input via Zod.
-2. Server hashes password with `bcryptjs` (12 rounds) and creates user record.
-3. JWT is signed with payload `{ userId, role }` and attached as an `httpOnly` cookie.
-4. Client's subsequent requests automatically send cookie header, verified by middleware.
-
-### Order Placement Transaction Flow
-All operations are executed inside a **Prisma Database Transaction (`$transaction`)** to guarantee data integrity:
-1. Verify each item's stock status.
-2. Calculate order subtotal and validate coupon (minimum order limit, expiry, usage count).
-3. Insert record into `Order` and `OrderItem` tables.
-4. Decrement product stock levels.
-5. Increment coupon usage counter.
-6. Clear user's cart items.
-7. If any step fails, the entire transaction rolls back.
 
 ---
 
@@ -153,101 +83,129 @@ All operations are executed inside a **Prisma Database Transaction (`$transactio
 
 ### Prerequisites
 * Node.js v20+
-* Docker & Docker Compose (optional, for DB)
-* PostgreSQL locally running (if not using Docker)
+* Homebrew (Mac) or Docker
 
-### Setup Steps
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/vamsi2246/UniWear-Commerce.git
-   cd UniWear-Commerce
-   ```
+### 1. Database Setup
+If using Docker, run:
+```bash
+docker-compose up -d db
+```
+If using local Homebrew Postgres:
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+createdb uniwear
+```
 
-2. **Configure environment variables:**
-   Create a `.env` file in the `server/` directory (use `server/.env.example` as a reference).
-   ```bash
-   cp server/.env.example server/.env
-   ```
+### 2. Configure Environments
+Create a `.env` file in the `server` directory:
+```env
+PORT=5000
+NODE_ENV=development
+DATABASE_URL="postgresql://apple@localhost:5432/uniwear?schema=public"
+JWT_SECRET="your-jwt-secret-key-for-development"
+JWT_EXPIRES_IN="7d"
+CLIENT_URL="http://localhost:5173"
+```
 
-3. **Install all dependencies:**
-   From the root folder, run:
-   ```bash
-   npm run install:all
-   ```
+### 3. Deploy Migrations & Seed
+Run migrations and populate the database:
+```bash
+npm run install:all
+cd server
+npx prisma migrate dev --name init
+npx prisma db seed
+```
 
-4. **Spin up database & seed data:**
-   If using Docker for the database:
-   ```bash
-   docker-compose up -d db
-   ```
-   Apply Prisma migrations:
-   ```bash
-   npm run db:migrate
-   ```
-   Seed the database with sample products and admin user:
-   ```bash
-   npm run db:seed
-   ```
+### 4. Start Development Servers
+Run both client and server concurrently from the root directory:
+```bash
+npm run dev
+```
+* **Frontend:** `http://localhost:5173`
+* **Backend:** `http://localhost:5000`
 
-5. **Start development servers:**
-   Run both frontend and backend concurrently:
-   ```bash
-   npm run dev
-   ```
-   * Frontend will run on: `http://localhost:5173`
-   * Backend API will run on: `http://localhost:5000`
+---
 
-### 👥 Demo Accounts
+## 🧪 Testing Suite
+We utilize Jest to verify authorization and transaction integrity:
+```bash
+cd server
+npm run test
+```
+
+---
+
+## 👥 Demo Credentials
 * **Admin User:** `admin@uniwear.com` / `password123`
 * **Regular Customer:** `john@example.com` / `password123`
 
 ---
 
-## 🐳 Docker Deployment Setup
-To run the entire ecosystem (DB, server, client) locally in a dockerized stack:
+## 🔌 API Documentation
+
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Public | Register new customer account |
+| **POST** | `/api/auth/login` | Public | Authenticates credentials & sets secure cookies |
+| **POST** | `/api/auth/logout` | Shopper | Clears authentication cookies |
+| **GET** | `/api/auth/me` | Shopper | Returns current logged-in user context |
+| **GET** | `/api/products` | Public | Returns paginated & filtered products |
+| **GET** | `/api/products/:slug` | Public | Returns single product details |
+| **POST** | `/api/products` | Admin | Adds product to catalog |
+| **PUT** | `/api/products/:id` | Admin | Updates product properties |
+| **DELETE** | `/api/products/:id` | Admin | Soft-archives target product |
+| **GET** | `/api/cart` | Shopper | Fetches active user shopping cart |
+| **POST** | `/api/cart/items` | Shopper | Adds item to shopping cart |
+| **PATCH** | `/api/cart/items/:id` | Shopper | Updates target cart item quantity |
+| **DELETE** | `/api/cart/items/:id` | Shopper | Removes item from cart |
+| **POST** | `/api/orders` | Shopper | Places order & runs checkout transactions |
+| **GET** | `/api/orders/:id` | Shopper | Returns tracking status & timeline |
+| **PATCH** | `/api/orders/:id/status` | Admin | Updates order tracking status |
+| **POST** | `/api/coupons/validate` | Shopper | Validates discount voucher rules |
+
+---
+
+## 🐳 Production Deployment Setup
+
+### 1. Build and Run via Docker Compose
+To build and run all services (DB, server, client) locally in production mode:
 ```bash
 docker-compose up --build
 ```
-The client will be accessible at `http://localhost:5173` served via Nginx.
+* The client is served via Nginx on port `5173`.
+* Nginx proxy-passes `/api` queries to the backend node server container.
+
+### 2. Manual Cloud Deployments
+* **Backend:** Deploy to Render using the server Dockerfile. Specify environment variables.
+* **Frontend:** Deploy to Vercel/Netlify. Connect to the backend production API.
+* **Database:** Provision a serverless PostgreSQL instance on Neon.tech.
 
 ---
 
-## 📈 Git Commit Strategy
-We suggest following these semantic commits to demonstrate progress:
-1. `chore: initialize monorepo client and server folders`
-2. `feat(db): establish Prisma schema with relational models`
-3. `feat(db): write catalog populating seed.ts script`
-4. `feat(auth): JWT session authentication using httpOnly cookies`
-5. `feat(auth): role-based check middlewares`
-6. `feat(client): API client setup with Axios interceptor`
-7. `feat(client): authentication context wrapper`
-8. `feat(client): register and login pages validation`
-9. `feat(products): CRUD endpoints for catalog`
-10. `feat(cart): server-persisted cart state`
-11. `feat(checkout): transaction-based order creation with stock check`
-12. `feat(orders): tracking history details API`
-13. `feat(admin): analytics dashboard layout`
-14. `feat(admin): product catalog CRUD screens`
-15. `feat(admin): category manager page`
-16. `feat(admin): customer orders tracking panel`
-17. `feat(search): debounced catalog filtering & sorting`
-18. `feat(wishlist): save-for-later database wishlist`
-19. `feat(reviews): star-ratings review sub-module`
-20. `feat(coupons): coupon validate and apply logic`
-21. `feat(ui): responsive navigation headers`
-22. `feat(ui): dynamic skeletons loading state`
-23. `feat(ui): interactive transition animations`
-24. `feat(ui): light and dark mode toggles`
+## 🖼️ Application Viewports
+
+| Main Catalog Filter (Sidebar) | Admin Analytics Dashboard (SVG charts) |
+| :--- | :--- |
+| ![Filters Desktop View](https://placehold.co/600x400/png?text=Collapsible+Filters+Panel) | ![Dashboard Desktop View](https://placehold.co/600x400/png?text=Admin+Dashboard+SVG+Analytics) |
 
 ---
 
-## ⚠️ Known Limitations & Future Roadmap
-* **Simulated Payments:** Orders are completed using simulated checkout. Integration with Stripe/Razorpay would be the next step.
-* **Search Optimization:** Large datasets would benefit from Meilisearch/Elasticsearch index syncing instead of raw PG `ILIKE` operations.
-* **Refresh Tokens:** Access tokens expire in 7 days; adding token rotation would enhance security.
-* **Image Uploads:** Integrates Multer/Cloudinary memory storage; adding S3 buckets or CDN distribution would scale asset hosting.
+## 📈 Interview Talking Points
+
+Be prepared to discuss these design patterns during the technical interview:
+1. **Prisma ACID Transactions:** Explain how `$transaction` prevents race conditions by locking stock rows, verifying stock levels, updating usage counters, creating order models, and flushing carts atomically.
+2. **Stateless JWT Cookie Authentication:** Discuss why `httpOnly` secure cookies are preferred over local storage to block Cross-Site Scripting (XSS) token reads.
+3. **Axios Response Interceptors:** Detail how the frontend automatically logs out users by catching global `401 Unauthorized` responses.
+4. **SVG Visualizations:** Explain how rendering charts natively in SVG reduces JavaScript bundle sizes by avoiding heavy visualization dependencies.
+
+---
+
+## ⚠️ Limitations & Future Roadmap
+* **Simulated Payments:** Payments are simulated. Real-world implementations require Stripe webhook status listeners.
+* **Elasticsearch / Meilisearch:** Text search uses Postgres `ILIKE` operations; larger catalogs would benefit from Elasticsearch synchronization.
 
 ---
 
 ## 🤖 AI Usage Statement
-AI was utilized as an engineering accelerator to structure boilerplate routes, controllers, typescript typings, and Tailwind layout skeletons, allowing focus on core database transactions, security cookies, and custom hooks integration.
+AI was utilized as an engineering accelerator to structure routes, boilerplate validation schemas, and database seed mock assets, allowing development focus to target transactional database integrity, authentication controls, and responsive UI layouts.
