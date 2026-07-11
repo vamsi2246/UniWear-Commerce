@@ -1,0 +1,31 @@
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const message =
+      error.response?.data?.message || error.message || "Something went wrong";
+    
+    // Don't redirect on auth check failures (silent 401 on /me)
+    if (
+      error.response?.status === 401 &&
+      !error.config?.url?.includes("/auth/me")
+    ) {
+      // Could dispatch a logout event here
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    }
+
+    return Promise.reject({ ...error, message });
+  }
+);
+
+export default api;
