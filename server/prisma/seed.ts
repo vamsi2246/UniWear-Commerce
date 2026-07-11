@@ -128,12 +128,26 @@ async function main() {
   console.log("📁 Created 10 industry uniform categories");
 
   // Helper function to build local uniform asset paths
-  const getLocalImages = (category: string, slug: string) => {
+  const categoryToFolder: Record<string, string> = {
+    "medical-scrubs": "medical",
+    "corporate-office": "corporate",
+    "school-uniforms": "school",
+    "industrial-safety": "industrial",
+    "hospitality-culinary": "hospitality",
+    "security-operations": "security",
+    "retail-uniforms": "retail",
+    "construction-safety": "construction",
+    "sports-team": "sports",
+    "housekeeping-uniforms": "housekeeping"
+  };
+
+  const getLocalImages = (categorySlug: string, slug: string) => {
+    const folder = categoryToFolder[categorySlug] || categorySlug;
     return [
-      `/images/${category}/${slug}-front.jpg`,
-      `/images/${category}/${slug}-back.jpg`,
-      `/images/${category}/${slug}-side.jpg`,
-      `/images/${category}/${slug}-detail.jpg`
+      `/images/${folder}/${slug}-front.jpg`,
+      `/images/${folder}/${slug}-back.jpg`,
+      `/images/${folder}/${slug}-side.jpg`,
+      `/images/${folder}/${slug}-detail.jpg`
     ];
   };
 
