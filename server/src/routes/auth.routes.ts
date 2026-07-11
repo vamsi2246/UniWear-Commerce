@@ -17,5 +17,7 @@ router.post("/register", authLimiter, validate(registerSchema), authController.r
 router.post("/login", authLimiter, validate(loginSchema), authController.login);
 router.post("/logout", authenticate, authController.logout);
 router.get("/me", authenticate, authController.getMe);
+router.get("/google", authController.googleLogin);
+router.get("/google/callback", authController.googleCallback);
 
 export default router;

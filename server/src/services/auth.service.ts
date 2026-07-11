@@ -44,6 +44,10 @@ export const authService = {
       throw ApiError.unauthorized("Invalid email or password");
     }
 
+    if (!user.password) {
+      throw ApiError.unauthorized("This account uses Google Login. Please sign in with Google.");
+    }
+
     const isValid = await comparePassword(data.password, user.password);
     if (!isValid) {
       throw ApiError.unauthorized("Invalid email or password");

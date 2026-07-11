@@ -106,9 +106,24 @@ DATABASE_URL="postgresql://apple@localhost:5432/uniwear?schema=public"
 JWT_SECRET="your-jwt-secret-key-for-development"
 JWT_EXPIRES_IN="7d"
 CLIENT_URL="http://localhost:5173"
+
+# Google OAuth
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GOOGLE_CALLBACK_URL="http://localhost:5000/api/auth/google/callback"
 ```
 
-### 3. Deploy Migrations & Seed
+### 3. Google OAuth Setup
+1. Go to [Google Cloud Console](https://console.cloud.google.com).
+2. Create a project and head to **APIs & Services** > **OAuth Consent Screen**.
+3. Create an External consent screen, fill out app metadata, and add the `openid`, `email`, and `profile` scopes.
+4. Head to **Credentials** > **Create Credentials** > **OAuth Client ID**.
+5. Select Web Application:
+   * **Authorized Javascript Origins:** `http://localhost:5173`
+   * **Authorized Redirect URIs:** `http://localhost:5000/api/auth/google/callback`
+6. Copy the Client ID and Secret and paste them into your `server/.env` file.
+
+### 4. Deploy Migrations & Seed
 Run migrations and populate the database:
 ```bash
 npm run install:all
@@ -117,7 +132,7 @@ npx prisma migrate dev --name init
 npx prisma db seed
 ```
 
-### 4. Start Development Servers
+### 5. Start Development Servers
 Run both client and server concurrently from the root directory:
 ```bash
 npm run dev
