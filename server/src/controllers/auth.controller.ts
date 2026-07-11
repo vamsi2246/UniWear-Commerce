@@ -37,16 +37,24 @@ export const authController = {
 
   googleCallback: catchAsync(async (req: AuthRequest, res: Response) => {
     const code = req.query.code as string;
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
     if (!code) {
-      res.redirect((process.env.CLIENT_URL || "http://localhost:5173") + "/login?error=no_code");
+      res.redirect(clientUrl + "/login?error=no_code");
       return;
     }
 
-    const profile = await oauthService.getGoogleProfile(code);
-    const user = await oauthService.handleGoogleUser(profile);
-    const token = generateToken({ userId: user.id, role: user.role });
+    try {
+      const profile = await oauthService.getGoogleProfile(code);
+      const user = await oauthService.handleGoogleUser(profile);
+      const token = generateToken({ userId: user.id, role: user.role });
 
-    res.cookie("token", token, COOKIE_OPTIONS);
-    res.redirect(process.env.CLIENT_URL || "http://localhost:5173");
+      res.cookie("token", token, COOKIE_OPTIONS);
+      res.redirect(clientUrl);
+    } catch (err: any) {
+      console.error("❌ Google OAuth Callback Error:", err.message);
+      const errMsg = encodeURIComponent(err.message || "Failed to authenticate with Google");
+      res.redirect(`${clientUrl}/login?error=${errMsg}`);
+    }
   }),
 };
