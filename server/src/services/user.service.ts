@@ -63,6 +63,9 @@ export const userService = {
   },
 
   async getDashboardStats() {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
     const [
       totalUsers,
       totalProducts,
@@ -70,6 +73,9 @@ export const userService = {
       revenueResult,
       recentOrders,
       ordersByStatus,
+      lowStockProducts,
+      recentOrdersForRevenue,
+      orderItemsForPerformance,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.product.count({ where: { isArchived: false } }),
@@ -90,7 +96,99 @@ export const userService = {
         by: ["status"],
         _count: true,
       }),
+      prisma.product.count({
+        where: { stock: { lt: 10 }, isArchived: false },
+      }),
+      prisma.order.findMany({
+        where: {
+          createdAt: { gte: sixMonthsAgo },
+          status: { not: "CANCELLED" },
+        },
+        select: { createdAt: true, total: true },
+      }),
+      prisma.orderItem.findMany({
+        include: {
+          product: {
+            select: {
+              category: { select: { name: true } },
+            },
+          },
+        },
+      }),
     ]);
+
+    // 1. Calculate Monthly Revenue trends (chronological order)
+    const monthlyRevenueMap: Map<string, { key: number; revenue: number }> = new Map();
+    // Pre-populate last 6 months with 0
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const monthName = d.toLocaleString("en-US", { month: "short", year: "2-digit" });
+      monthlyRevenueMap.set(monthName, { key: d.getTime(), revenue: 0 });
+    }
+
+    recentOrdersForRevenue.forEach((order) => {
+      const monthName = order.createdAt.toLocaleString("en-US", { month: "short", year: "2-digit" });
+      const current = monthlyRevenueMap.get(monthName);
+      if (current) {
+        current.revenue += Number(order.total);
+      }
+    });
+
+    const monthlyRevenue = Array.from(monthlyRevenueMap.entries())
+      .map(([month, data]) => ({
+        month,
+        revenue: Math.round(data.revenue * 100) / 100,
+        key: data.key,
+      }))
+      .sort((a, b) => a.key - b.key)
+      .map(({ month, revenue }) => ({ month, revenue }));
+
+    // 2. Calculate Category Sales Performance
+    const categorySalesMap: Record<string, number> = {};
+    orderItemsForPerformance.forEach((item) => {
+      const catName = item.product?.category?.name || "Uncategorized";
+      const totalAmount = Number(item.price) * item.quantity;
+      categorySalesMap[catName] = (categorySalesMap[catName] || 0) + totalAmount;
+    });
+
+    const categoryPerformance = Object.entries(categorySalesMap).map(([category, value]) => ({
+      category,
+      value: Math.round(value * 100) / 100,
+    }));
+
+    // 3. Top Selling Products
+    const productSalesMap: Record<string, { name: string; price: number; quantity: number }> = {};
+    orderItemsForPerformance.forEach((item) => {
+      const pId = item.productId;
+      if (!productSalesMap[pId]) {
+        productSalesMap[pId] = {
+          name: "Product #" + pId.slice(-4),
+          price: Number(item.price),
+          quantity: 0,
+        };
+      }
+      productSalesMap[pId].quantity += item.quantity;
+    });
+
+    // Hydrate top names
+    const topSellingRaw = Object.entries(productSalesMap)
+      .map(([id, stats]) => ({ id, ...stats }))
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    const topSelling = await Promise.all(
+      topSellingRaw.map(async (item) => {
+        const prod = await prisma.product.findUnique({
+          where: { id: item.id },
+          select: { name: true },
+        });
+        if (prod) {
+          item.name = prod.name;
+        }
+        return item;
+      })
+    );
 
     return {
       totalUsers,
@@ -102,6 +200,10 @@ export const userService = {
         acc[item.status] = item._count;
         return acc;
       }, {} as Record<string, number>),
+      lowStockProducts,
+      monthlyRevenue,
+      categoryPerformance,
+      topSelling,
     };
   },
 };

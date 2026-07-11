@@ -146,6 +146,10 @@ export interface DashboardStats {
   totalRevenue: number;
   recentOrders: Array<Order & { _count: { items: number } }>;
   ordersByStatus: Record<string, number>;
+  lowStockProducts: number;
+  monthlyRevenue: Array<{ month: string; revenue: number }>;
+  categoryPerformance: Array<{ category: string; value: number }>;
+  topSelling: Array<{ id: string; name: string; price: number; quantity: number }>;
 }
 
 export interface ApiResponse<T> {

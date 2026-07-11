@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
@@ -15,7 +16,7 @@ interface ProductCardProps {
   product: Product;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export const ProductCard = React.memo(function ProductCard({ product }: ProductCardProps) {
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -138,4 +139,4 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
     </motion.div>
   );
-}
+});
