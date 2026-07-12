@@ -100,7 +100,7 @@ createdb uniwear
 ### 2. Configure Environments
 Create a `.env` file in the `server` directory:
 ```env
-PORT=5000
+PORT=5001
 NODE_ENV=development
 DATABASE_URL="postgresql://apple@localhost:5432/uniwear?schema=public"
 JWT_SECRET="your-jwt-secret-key-for-development"
@@ -110,7 +110,7 @@ CLIENT_URL="http://localhost:5173"
 # Google OAuth
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GOOGLE_CALLBACK_URL="http://localhost:5000/api/auth/google/callback"
+GOOGLE_CALLBACK_URL="http://localhost:5001/api/auth/google/callback"
 ```
 
 ### 3. Google OAuth Setup
@@ -120,7 +120,7 @@ GOOGLE_CALLBACK_URL="http://localhost:5000/api/auth/google/callback"
 4. Head to **Credentials** > **Create Credentials** > **OAuth Client ID**.
 5. Select Web Application:
    * **Authorized Javascript Origins:** `http://localhost:5173`
-   * **Authorized Redirect URIs:** `http://localhost:5000/api/auth/google/callback`
+   * **Authorized Redirect URIs:** `http://localhost:5001/api/auth/google/callback`
 6. Copy the Client ID and Secret and paste them into your `server/.env` file.
 
 ### 4. Deploy Migrations & Seed
@@ -138,7 +138,7 @@ Run both client and server concurrently from the root directory:
 npm run dev
 ```
 * **Frontend:** `http://localhost:5173`
-* **Backend:** `http://localhost:5000`
+* **Backend:** `http://localhost:5001`
 
 ---
 

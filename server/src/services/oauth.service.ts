@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
-const CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback";
+const CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || "http://localhost:5001/api/auth/google/callback";
 
 export interface GoogleProfile {
   id: string;
