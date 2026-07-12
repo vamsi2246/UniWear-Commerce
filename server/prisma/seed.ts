@@ -133,7 +133,7 @@ async function main() {
     "corporate-office": "corporate",
     "school-uniforms": "school",
     "industrial-safety": "industrial",
-    "hospitality-culinary": "hospitality",
+    "hospitality-culinary": "chef",
     "security-operations": "security",
     "retail-uniforms": "retail",
     "construction-safety": "construction",
