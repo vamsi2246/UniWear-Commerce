@@ -45,19 +45,22 @@ export function Header() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/products" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Shop
+              Shop All
             </Link>
-            <Link to="/products?category=t-shirts" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              T-Shirts
+            <Link to="/products?category=medical-scrubs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Medical
             </Link>
-            <Link to="/products?category=jeans" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Jeans
+            <Link to="/products?category=corporate-office" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Corporate
             </Link>
-            <Link to="/products?category=dresses" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Dresses
+            <Link to="/products?category=school-uniforms" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              School
             </Link>
-            <Link to="/products?category=jackets" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Jackets
+            <Link to="/products?category=hospitality-culinary" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Hospitality
+            </Link>
+            <Link to="/products?category=security-operations" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Security
             </Link>
           </nav>
 
@@ -169,10 +172,11 @@ export function Header() {
             >
               <div className="py-4 space-y-2">
                 <Link to="/products" className="block py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>Shop All</Link>
-                <Link to="/products?category=t-shirts" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>T-Shirts</Link>
-                <Link to="/products?category=jeans" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Jeans</Link>
-                <Link to="/products?category=dresses" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Dresses</Link>
-                <Link to="/products?category=jackets" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Jackets</Link>
+                <Link to="/products?category=medical-scrubs" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Medical</Link>
+                <Link to="/products?category=corporate-office" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Corporate</Link>
+                <Link to="/products?category=school-uniforms" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>School</Link>
+                <Link to="/products?category=hospitality-culinary" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Hospitality</Link>
+                <Link to="/products?category=security-operations" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Security</Link>
                 {isAuthenticated ? (
                   <>
                     <Link to="/orders" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>My Orders</Link>

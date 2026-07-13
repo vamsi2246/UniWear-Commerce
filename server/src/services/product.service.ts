@@ -32,7 +32,14 @@ export const productService = {
 
     // Category filter
     if (query.category) {
-      where.category = { slug: query.category };
+      const categoryMapping: Record<string, string> = {
+        "t-shirts": "sports-team",
+        "jeans": "industrial-safety",
+        "dresses": "housekeeping-uniforms",
+        "jackets": "construction-safety",
+      };
+      const targetSlug = categoryMapping[query.category.toLowerCase()] || query.category;
+      where.category = { slug: targetSlug };
     }
 
     // Price range

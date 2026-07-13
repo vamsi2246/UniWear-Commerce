@@ -22,10 +22,11 @@ export function Footer() {
             <h3 className="font-semibold mb-4">Shop</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/products" className="hover:text-foreground transition-colors">All Products</Link></li>
-              <li><Link to="/products?category=t-shirts" className="hover:text-foreground transition-colors">T-Shirts</Link></li>
-              <li><Link to="/products?category=jeans" className="hover:text-foreground transition-colors">Jeans</Link></li>
-              <li><Link to="/products?category=dresses" className="hover:text-foreground transition-colors">Dresses</Link></li>
-              <li><Link to="/products?category=jackets" className="hover:text-foreground transition-colors">Jackets</Link></li>
+              <li><Link to="/products?category=medical-scrubs" className="hover:text-foreground transition-colors">Medical</Link></li>
+              <li><Link to="/products?category=corporate-office" className="hover:text-foreground transition-colors">Corporate</Link></li>
+              <li><Link to="/products?category=school-uniforms" className="hover:text-foreground transition-colors">School</Link></li>
+              <li><Link to="/products?category=hospitality-culinary" className="hover:text-foreground transition-colors">Hospitality</Link></li>
+              <li><Link to="/products?category=security-operations" className="hover:text-foreground transition-colors">Security</Link></li>
             </ul>
           </div>
 
